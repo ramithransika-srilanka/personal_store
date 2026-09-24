@@ -5,7 +5,8 @@ Mobile-only shopping web app built from the Figma design
 
 - Vertical, snap-scrolling feed of looks with a price / **Buy** pill on each photo
 - Photo strip for the look in view, plus a "What are you looking for?" search bar
-- Size picker, bag (saved in `localStorage`), and a menu to jump between looks
+- **Buy** adds straight to the bag (saved in `localStorage`); the bag icon shows the count and total
+- Menu to jump between looks
 
 On screens wider than a phone the app stays in a centred 430px column.
 

@@ -9,7 +9,6 @@ export type Look = {
   id: string;
   name: string;
   price: number;
-  sizes: string[];
   tags: string[];
   images: string[];
 };
@@ -20,7 +19,6 @@ export const looks: Look[] = [
     id: 'floral-ruffle-crop',
     name: 'Floral Ruffle Crop Top',
     price: 3999,
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
     tags: ['top', 'crop', 'floral', 'print', 'ruffle', 'summer'],
     images: [floralHero, floral1, floral2, floral3, floral4],
   },
@@ -28,7 +26,6 @@ export const looks: Look[] = [
     id: 'lime-satin-halter',
     name: 'Lime Satin Halter Top',
     price: 4499,
-    sizes: ['XS', 'S', 'M', 'L'],
     tags: ['top', 'crop', 'satin', 'halter', 'green', 'party'],
     images: [satinHero],
   },

@@ -4,12 +4,11 @@ import { CloseIcon } from './Icons';
 type Props = {
   open: boolean;
   title: string;
-  side?: 'bottom' | 'left';
   onClose: () => void;
   children: ReactNode;
 };
 
-export function Sheet({ open, title, side = 'bottom', onClose, children }: Props) {
+export function Sheet({ open, title, onClose, children }: Props) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -20,7 +19,7 @@ export function Sheet({ open, title, side = 'bottom', onClose, children }: Props
   return (
     <div className={`sheet-layer${open ? ' is-open' : ''}`} aria-hidden={!open}>
       <div className="sheet-backdrop" onClick={onClose} />
-      <div className={`sheet sheet--${side}`} role="dialog" aria-modal="true" aria-label={title}>
+      <div className={"sheet sheet--left"} role="dialog" aria-modal="true" aria-label={title}>
         <div className="sheet__head">
           <h2>{title}</h2>
           <button className="sheet__close" aria-label="Close" onClick={onClose}>
