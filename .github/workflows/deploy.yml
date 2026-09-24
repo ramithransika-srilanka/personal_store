@@ -1,21 +1,23 @@
 name: Deploy to GitHub Pages
 
-# Builds the site and publishes dist/ to the gh-pages branch, which GitHub Pages serves.
+# Builds the site and deploys dist/ with GitHub's Pages actions
+# (repo Settings → Pages → Source: GitHub Actions).
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
+  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,19 +29,17 @@ jobs:
       - run: npm run build
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
-      - name: Publish dist to gh-pages
-        run: |
-          cd dist
-          touch .nojekyll
-          git init -q -b gh-pages
-          git add -A
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-            commit -qm "Deploy ${GITHUB_SHA::7}"
-          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
-      # Pushes made with the workflow token don't start a Pages build on their own.
-      - name: Request a Pages build
-        run: |
-          curl -fsS -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages/builds"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
