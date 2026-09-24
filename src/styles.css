@@ -243,6 +243,12 @@ ul {
   scrollbar-width: none;
 }
 
+.thumbs.has-more {
+  /* Fade the partly visible last photo out to the right (a photo is 96px + 8px gap). */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 47px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 47px), transparent);
+}
+
 .thumbs::-webkit-scrollbar {
   display: none;
 }
