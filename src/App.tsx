@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type UIEvent } from 'react';
 import { BottomDock } from './components/BottomDock';
 import { Header } from './components/Header';
 import { LookCard } from './components/LookCard';
 import { Sheet } from './components/Sheet';
 import { formatPrice, looks, searchLooks } from './data/looks';
 
-type BagItem = { lookId: string; size: string };
+type BagItem = { lookId: string };
 
 const BAG_KEY = 'personal-store:bag';
+const INTRO_MS = 2300;
 
 function loadBag(): BagItem[] {
   try {
@@ -21,11 +22,31 @@ export function App() {
   const [active, setActive] = useState(0);
   const [imageIndex, setImageIndex] = useState<number[]>(() => looks.map(() => 0));
   const [bag, setBag] = useState<BagItem[]>(loadBag);
-  const [buyFor, setBuyFor] = useState<number | null>(null);
-  const [size, setSize] = useState<string | null>(null);
-  const [panel, setPanel] = useState<'menu' | 'bag' | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [intro, setIntro] = useState<'pending' | 'playing' | 'done'>('pending');
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+
+  // Start the intro once the first photo is ready (or after 1s at most), and drop the
+  // animations when it ends so later re-renders (e.g. a new photo strip) don't replay it.
+  useEffect(() => {
+    let cancelled = false;
+    const timers: number[] = [];
+    const start = () => {
+      if (cancelled) return;
+      cancelled = true;
+      setIntro('playing');
+      timers.push(window.setTimeout(() => setIntro('done'), INTRO_MS));
+    };
+    const img = new Image();
+    img.src = looks[0].images[0];
+    img.decode().then(() => timers.push(window.setTimeout(start, 150)), start);
+    timers.push(window.setTimeout(start, 1000));
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -35,21 +56,16 @@ export function App() {
     }
   }, [bag]);
 
-  // Track which look is snapped into view so the dock shows its photos.
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActive(sectionRefs.current.indexOf(entry.target as HTMLElement));
-          }
-        }
-      },
-      { threshold: 0.6 },
-    );
-    sectionRefs.current.forEach((el) => el && observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+  // The look snapped to the top of the feed drives the dock's photo strip.
+  const handleFeedScroll = (e: UIEvent<HTMLElement>) => {
+    const top = e.currentTarget.scrollTop;
+    let nearest = 0;
+    sectionRefs.current.forEach((el, i) => {
+      const best = sectionRefs.current[nearest];
+      if (el && best && Math.abs(el.offsetTop - top) < Math.abs(best.offsetTop - top)) nearest = i;
+    });
+    setActive(nearest);
+  };
 
   useEffect(() => {
     if (!toast) return;
@@ -70,30 +86,27 @@ export function App() {
     scrollToLook(index);
   };
 
-  const openBuy = (index: number) => {
-    setBuyFor(index);
-    setSize(null);
-  };
-
-  const addToBag = () => {
-    if (buyFor === null || !size) return;
-    setBag((b) => [...b, { lookId: looks[buyFor].id, size }]);
-    setBuyFor(null);
+  const addToBag = (index: number) => {
+    setBag((b) => [...b, { lookId: looks[index].id }]);
     setToast('Added to bag');
   };
 
-  const closePanel = useCallback(() => setPanel(null), []);
-  const closeBuy = useCallback(() => setBuyFor(null), []);
+  const showBag = () => {
+    if (!bag.length) {
+      setToast('Your bag is empty');
+      return;
+    }
+    const total = bag.reduce((sum, item) => sum + (looks.find((l) => l.id === item.lookId)?.price ?? 0), 0);
+    setToast(`${bag.length} ${bag.length === 1 ? 'item' : 'items'} · ${formatPrice(total)}`);
+  };
 
-  const bagLooks = bag.map((item) => ({ ...item, look: looks.find((l) => l.id === item.lookId)! }));
-  const total = bagLooks.reduce((sum, item) => sum + item.look.price, 0);
-  const buyLook = buyFor !== null ? looks[buyFor] : null;
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
-    <div className="app">
-      <Header bagCount={bag.length} onMenu={() => setPanel('menu')} onBag={() => setPanel('bag')} />
+    <div className="app" data-intro={intro}>
+      <Header bagCount={bag.length} onMenu={() => setMenuOpen(true)} onBag={showBag} />
 
-      <main className="feed">
+      <main className="feed" onScroll={handleFeedScroll}>
         {looks.map((look, i) => (
           <LookCard
             key={look.id}
@@ -102,7 +115,7 @@ export function App() {
             }}
             look={look}
             imageIndex={imageIndex[i]}
-            onBuy={() => openBuy(i)}
+            onBuy={() => addToBag(i)}
           />
         ))}
         <div className="feed__end">You're all caught up</div>
@@ -115,76 +128,13 @@ export function App() {
         onSearch={handleSearch}
       />
 
-      <Sheet open={buyLook !== null} title={buyLook?.name ?? ''} onClose={closeBuy}>
-        {buyLook && (
-          <div className="buy">
-            <div className="buy__row">
-              <img className="buy__img" src={buyLook.images[0]} alt="" />
-              <div>
-                <p className="buy__price">{formatPrice(buyLook.price)}</p>
-                <p className="muted">Select a size</p>
-              </div>
-            </div>
-            <div className="sizes" role="radiogroup" aria-label="Size">
-              {buyLook.sizes.map((s) => (
-                <button
-                  key={s}
-                  role="radio"
-                  aria-checked={size === s}
-                  className={`size${size === s ? ' is-active' : ''}`}
-                  onClick={() => setSize(s)}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-            <button className="primary-btn" disabled={!size} onClick={addToBag}>
-              Add to bag
-            </button>
-          </div>
-        )}
-      </Sheet>
-
-      <Sheet open={panel === 'bag'} title="Your bag" onClose={closePanel}>
-        {bagLooks.length === 0 ? (
-          <p className="muted empty">Your bag is empty.</p>
-        ) : (
-          <>
-            <ul className="bag-list">
-              {bagLooks.map((item, i) => (
-                <li key={i} className="bag-item">
-                  <img src={item.look.images[0]} alt="" />
-                  <div className="bag-item__info">
-                    <p>{item.look.name}</p>
-                    <p className="muted">Size {item.size}</p>
-                  </div>
-                  <div className="bag-item__side">
-                    <p>{formatPrice(item.look.price)}</p>
-                    <button className="link-btn" onClick={() => setBag((b) => b.filter((_, j) => j !== i))}>
-                      Remove
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="bag-total">
-              <span>Total</span>
-              <span>{formatPrice(total)}</span>
-            </div>
-            <button className="primary-btn" onClick={() => setToast('Checkout is coming soon')}>
-              Checkout
-            </button>
-          </>
-        )}
-      </Sheet>
-
-      <Sheet open={panel === 'menu'} title="Shop" side="left" onClose={closePanel}>
+      <Sheet open={menuOpen} title="Shop" onClose={closeMenu}>
         <ul className="menu-list">
           {looks.map((look, i) => (
             <li key={look.id}>
               <button
                 onClick={() => {
-                  setPanel(null);
+                  setMenuOpen(false);
                   scrollToLook(i);
                 }}
               >
