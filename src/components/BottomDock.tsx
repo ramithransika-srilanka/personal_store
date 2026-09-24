@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
+import { useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { suggestions, type Look } from '../data/looks';
 import { ArrowUpIcon, PlusIcon } from './Icons';
 
@@ -21,7 +21,14 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
     setHasMore(!!el && el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
   };
 
-  useEffect(updateFade, [look, showSuggestions]);
+  // The first photo is the one already shown full-size above, so the strip starts
+  // scrolled past it; swiping right reveals it.
+  useLayoutEffect(() => {
+    const el = thumbsRef.current;
+    const [first, second] = (el?.children ?? []) as HTMLCollectionOf<HTMLElement>;
+    if (el && first && second) el.scrollLeft = second.offsetLeft - first.offsetLeft;
+    updateFade();
+  }, [look, showSuggestions]);
 
   const submit = (e?: FormEvent) => {
     e?.preventDefault();
@@ -56,7 +63,7 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
               aria-selected={i === imageIndex}
               aria-label={`Photo ${i + 1}`}
               className={`thumb${i === imageIndex ? ' is-active' : ''}`}
-              style={{ '--i': i } as CSSProperties}
+              style={{ '--i': i - 1 } as CSSProperties}
               onClick={() => onSelectImage(i)}
             >
               <img src={src} alt="" loading="lazy" />
