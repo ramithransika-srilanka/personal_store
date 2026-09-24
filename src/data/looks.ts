@@ -15,8 +15,8 @@ export type Look = {
 };
 
 // Served from /public so index.html can preload the poster before any JS runs.
-const floralVideo = '/media/hero.mp4';
-const floralPoster = '/media/hero-poster.webp';
+const floralVideo = `${import.meta.env.BASE_URL}media/hero.mp4`;
+const floralPoster = `${import.meta.env.BASE_URL}media/hero-poster.webp`;
 
 // Sample catalogue. Swap for an API call once a backend exists.
 export const looks: Look[] = [
