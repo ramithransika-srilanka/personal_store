@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { suggestions, type Look } from '../data/looks';
 import { ArrowUpIcon, PlusIcon } from './Icons';
 
@@ -56,6 +56,7 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
               aria-selected={i === imageIndex}
               aria-label={`Photo ${i + 1}`}
               className={`thumb${i === imageIndex ? ' is-active' : ''}`}
+              style={{ '--i': i } as CSSProperties}
               onClick={() => onSelectImage(i)}
             >
               <img src={src} alt="" loading="lazy" />

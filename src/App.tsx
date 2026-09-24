@@ -8,6 +8,7 @@ import { formatPrice, looks, searchLooks } from './data/looks';
 type BagItem = { lookId: string };
 
 const BAG_KEY = 'personal-store:bag';
+const INTRO_MS = 1900;
 
 function loadBag(): BagItem[] {
   try {
@@ -23,7 +24,29 @@ export function App() {
   const [bag, setBag] = useState<BagItem[]>(loadBag);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [intro, setIntro] = useState<'pending' | 'playing' | 'done'>('pending');
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+
+  // Start the intro once the first photo is ready (or after 1s at most), and drop the
+  // animations when it ends so later re-renders (e.g. a new photo strip) don't replay it.
+  useEffect(() => {
+    let cancelled = false;
+    const timers: number[] = [];
+    const start = () => {
+      if (cancelled) return;
+      cancelled = true;
+      setIntro('playing');
+      timers.push(window.setTimeout(() => setIntro('done'), INTRO_MS));
+    };
+    const img = new Image();
+    img.src = looks[0].images[0];
+    img.decode().then(() => timers.push(window.setTimeout(start, 150)), start);
+    timers.push(window.setTimeout(start, 1000));
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -80,7 +103,7 @@ export function App() {
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
-    <div className="app">
+    <div className="app" data-intro={intro}>
       <Header bagCount={bag.length} onMenu={() => setMenuOpen(true)} onBag={showBag} />
 
       <main className="feed" onScroll={handleFeedScroll}>
