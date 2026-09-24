@@ -8,7 +8,7 @@ import { formatPrice, looks, searchLooks } from './data/looks';
 type BagItem = { lookId: string };
 
 const BAG_KEY = 'personal-store:bag';
-const INTRO_MS = 1900;
+const INTRO_MS = 2300;
 
 function loadBag(): BagItem[] {
   try {
