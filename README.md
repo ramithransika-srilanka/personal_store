@@ -21,7 +21,8 @@ npm run build
 ### Deploy
 
 Pushing to `main` runs `.github/workflows/deploy.yml`, which builds with `BASE_PATH=/<repo>/`
-and publishes `dist` to GitHub Pages at https://ramithransika-srilanka.github.io/personal_store/.
+and publishes `dist` to the `gh-pages` branch. GitHub Pages serves that branch at
+https://ramithransika-srilanka.github.io/personal_store/.
 
 ### Hero video
 
