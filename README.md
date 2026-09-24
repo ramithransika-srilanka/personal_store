@@ -26,8 +26,8 @@ https://ramithransika-srilanka.github.io/personal_store/.
 
 ### Hero video
 
-`public/media/hero.mp4` is the first look's background (H.264, no audio, 720×1074, faststart,
-1s keyframes, ~1.2 MB). Its last half-second is cross-faded into its start so the loop has no jump,
+`public/media/hero.mp4` is the first look's background (H.264, no audio, 720×1200, faststart,
+1s keyframes, ~1.3 MB). Its last half-second is cross-faded into its start so the loop has no jump,
 and `hero-poster.webp` is its exact first frame, preloaded from `index.html` so something shows
 instantly. The video plays only while it's on screen and selected, and stays on the poster under
 reduced motion or data saver. Serve `/media` with long cache headers and byte-range support
