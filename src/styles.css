@@ -1,8 +1,8 @@
 :root {
   --app-w: min(100vw, 430px);
-  /* Figma ratio (586 / 393), but never taller than the space above the dock:
-     852 - 52 dock bottom - 199 dock - 15 gap = 586, so on short screens the Buy pill stays visible. */
-  --hero-h: min(calc(var(--app-w) * 586 / 393), calc(100dvh - 266px));
+  /* Fills the screen down to 15px above the dock (10px dock bottom + 199px dock + 15px gap),
+     as in Figma, so the Buy pill always clears the photo row. */
+  --hero-h: calc(100dvh - 224px);
   --divider: #f6f6f6;
   --glass-dark: rgba(26, 26, 26, 0.5);
   --glass-bar: rgba(24, 24, 24, 0.5);
@@ -14,7 +14,7 @@
   --text: #000000;
   --muted: #6b6b6b;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --dock-bottom: 52px;
+  --dock-bottom: 10px;
   font-family: 'Inter', sans-serif;
   line-height: normal;
   -webkit-font-smoothing: antialiased;
@@ -235,8 +235,8 @@ ul {
 /* Bottom dock ------------------------------------------------------------ */
 
 .dock {
-  /* Anchored to the bottom on every screen: dock 52px up + 6px padding = Figma's 58px under the
-     chat box (852 - 794). The 8px gap to the photo row is the flex gap below. */
+  /* Anchored to the bottom on every screen: dock 10px up + 6px padding = 16px under the
+     chat box. The 8px gap to the photo row is the flex gap below. */
   bottom: var(--dock-bottom);
   z-index: 10;
   width: calc(var(--app-w) - 22px);
@@ -245,19 +245,6 @@ ul {
   gap: 8px;
   padding: 6px;
   border-radius: 28px;
-}
-
-/* The dock's own blur sits on a pseudo-element: a backdrop-filter on the dock
-   itself would stop the chat box's blur from reaching the photo behind it. */
-.dock::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  pointer-events: none;
 }
 
 .thumbs {
@@ -502,8 +489,7 @@ ul {
 }
 
 /* Before the first photo has decoded, keep everything but the photos and header hidden. */
-.app[data-intro='pending'] :is(.ask, .price-pill, .thumb),
-.app[data-intro='pending'] .dock::before {
+.app[data-intro='pending'] :is(.ask, .price-pill, .thumb) {
   opacity: 0;
 }
 
@@ -534,10 +520,6 @@ ul {
   animation:
     intro-fade 200ms ease-out 820ms both,
     intro-lift 600ms var(--spring-soft) 820ms both;
-}
-
-.app[data-intro='playing'] .dock::before {
-  animation: intro-fade 300ms ease-out 1360ms both;
 }
 
 .app[data-intro='playing'] .thumb {
@@ -609,8 +591,7 @@ ul {
   }
 
   /* Keep the staged reveal, but as plain fades with no movement. */
-  .app[data-intro='playing'] :is(.ask, .ask__btn--plus, .ask__input, .price-pill, .thumb),
-  .app[data-intro='playing'] .dock::before {
+  .app[data-intro='playing'] :is(.ask, .ask__btn--plus, .ask__input, .price-pill, .thumb) {
     animation: intro-fade 300ms ease-out both;
   }
 }
