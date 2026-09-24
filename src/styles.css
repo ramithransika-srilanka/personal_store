@@ -7,6 +7,8 @@
   --glass-btn: rgba(112, 112, 112, 0.5);
   --glass-btn-2: rgba(123, 123, 123, 0.5);
   --icon: #ffffff;
+  /* Figma says 4.3px, which barely shows in a browser; stronger so the blur reads. */
+  --chat-blur: 16px;
   --text: #000000;
   --muted: #6b6b6b;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -231,8 +233,19 @@ ul {
   gap: 8px;
   padding: 6px;
   border-radius: 28px;
-  backdrop-filter: blur(4px);
+}
+
+/* The dock's own blur sits on a pseudo-element: a backdrop-filter on the dock
+   itself would stop the chat box's blur from reaching the photo behind it. */
+.dock::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
   -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  pointer-events: none;
 }
 
 .thumbs {
@@ -285,8 +298,8 @@ ul {
   padding: 10px 16px;
   border-radius: 100px;
   background: var(--glass-bar);
-  backdrop-filter: blur(4.3px);
-  -webkit-backdrop-filter: blur(4.3px);
+  -webkit-backdrop-filter: blur(var(--chat-blur));
+  backdrop-filter: blur(var(--chat-blur));
   color: #fff;
   font-size: 14px;
 }
@@ -298,8 +311,8 @@ ul {
   padding: 4px;
   border-radius: 100px;
   background: var(--glass-bar);
-  backdrop-filter: blur(4.3px);
-  -webkit-backdrop-filter: blur(4.3px);
+  -webkit-backdrop-filter: blur(var(--chat-blur));
+  backdrop-filter: blur(var(--chat-blur));
 }
 
 .ask__left {
@@ -441,8 +454,8 @@ ul {
   padding: 10px 16px;
   border-radius: 100px;
   background: var(--glass-dark);
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   color: #fff;
   font-size: 14px;
   white-space: nowrap;
