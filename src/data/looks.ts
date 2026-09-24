@@ -1,4 +1,3 @@
-import floralHero from '../assets/looks/floral-hero.webp';
 import floral1 from '../assets/looks/floral-1.webp';
 import floral2 from '../assets/looks/floral-2.webp';
 import floral3 from '../assets/looks/floral-3.webp';
@@ -11,7 +10,13 @@ export type Look = {
   price: number;
   tags: string[];
   images: string[];
+  /** Plays in place of images[0], which must be the video's first frame. */
+  video?: string;
 };
+
+// Served from /public so index.html can preload the poster before any JS runs.
+const floralVideo = '/media/hero.mp4';
+const floralPoster = '/media/hero-poster.webp';
 
 // Sample catalogue. Swap for an API call once a backend exists.
 export const looks: Look[] = [
@@ -20,7 +25,8 @@ export const looks: Look[] = [
     name: 'Floral Ruffle Crop Top',
     price: 3999,
     tags: ['top', 'crop', 'floral', 'print', 'ruffle', 'summer'],
-    images: [floralHero, floral1, floral2, floral3, floral4],
+    images: [floralPoster, floral1, floral2, floral3, floral4],
+    video: floralVideo,
   },
   {
     id: 'lime-satin-halter',

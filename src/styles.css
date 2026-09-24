@@ -180,6 +180,12 @@ ul {
   opacity: 1;
 }
 
+/* Fades in over its poster (the same first frame, so the first reveal is invisible)
+   and cross-fades like the photos when switching in the strip. */
+.look__video {
+  pointer-events: none;
+}
+
 .price-pill {
   position: absolute;
   left: 0;

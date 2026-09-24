@@ -18,5 +18,14 @@ npm run dev      # served on your LAN too, so you can open it on a phone
 npm run build
 ```
 
+### Hero video
+
+`public/media/hero.mp4` is the first look's background (H.264, no audio, 720×1074, faststart,
+1s keyframes, ~1.2 MB). Its last half-second is cross-faded into its start so the loop has no jump,
+and `hero-poster.webp` is its exact first frame, preloaded from `index.html` so something shows
+instantly. The video plays only while it's on screen and selected, and stays on the poster under
+reduced motion or data saver. Serve `/media` with long cache headers and byte-range support
+(most static hosts do both).
+
 Products live in `src/data/looks.ts` (sample data — replace with an API when a backend exists).
 Checkout is not wired up yet.
