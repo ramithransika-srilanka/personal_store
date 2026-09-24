@@ -18,6 +18,11 @@ npm run dev      # served on your LAN too, so you can open it on a phone
 npm run build
 ```
 
+### Deploy
+
+Pushing to `main` runs `.github/workflows/deploy.yml`, which builds with `BASE_PATH=/<repo>/`
+and publishes `dist` to GitHub Pages at https://ramithransika-srilanka.github.io/personal_store/.
+
 ### Hero video
 
 `public/media/hero.mp4` is the first look's background (H.264, no audio, 720×1074, faststart,
