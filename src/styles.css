@@ -1,6 +1,8 @@
 :root {
   --app-w: min(100vw, 430px);
-  --hero-h: calc(var(--app-w) * 586 / 393);
+  /* Figma ratio (586 / 393), but never taller than the space above the dock:
+     852 - 52 dock bottom - 199 dock - 15 gap = 586, so on short screens the Buy pill stays visible. */
+  --hero-h: min(calc(var(--app-w) * 586 / 393), calc(100dvh - 266px));
   --divider: #f6f6f6;
   --glass-dark: rgba(26, 26, 26, 0.5);
   --glass-bar: rgba(24, 24, 24, 0.5);
@@ -12,6 +14,7 @@
   --text: #000000;
   --muted: #6b6b6b;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --dock-bottom: 52px;
   font-family: 'Inter', sans-serif;
   line-height: normal;
   -webkit-font-smoothing: antialiased;
@@ -224,8 +227,9 @@ ul {
 /* Bottom dock ------------------------------------------------------------ */
 
 .dock {
-  /* Figma: 11px below the 4px divider, same as the 11px side inset. Clamped for short screens. */
-  top: min(calc(var(--hero-h) + 15px), calc(100dvh - 199px - 12px - var(--safe-bottom)));
+  /* Anchored to the bottom on every screen: dock 52px up + 6px padding = Figma's 58px under the
+     chat box (852 - 794). The 8px gap to the photo row is the flex gap below. */
+  bottom: var(--dock-bottom);
   z-index: 10;
   width: calc(var(--app-w) - 22px);
   display: flex;

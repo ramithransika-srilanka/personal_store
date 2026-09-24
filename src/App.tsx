@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type UIEvent } from 'react';
 import { BottomDock } from './components/BottomDock';
 import { Header } from './components/Header';
 import { LookCard } from './components/LookCard';
@@ -33,21 +33,16 @@ export function App() {
     }
   }, [bag]);
 
-  // Track which look is snapped into view so the dock shows its photos.
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActive(sectionRefs.current.indexOf(entry.target as HTMLElement));
-          }
-        }
-      },
-      { threshold: 0.6 },
-    );
-    sectionRefs.current.forEach((el) => el && observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+  // The look snapped to the top of the feed drives the dock's photo strip.
+  const handleFeedScroll = (e: UIEvent<HTMLElement>) => {
+    const top = e.currentTarget.scrollTop;
+    let nearest = 0;
+    sectionRefs.current.forEach((el, i) => {
+      const best = sectionRefs.current[nearest];
+      if (el && best && Math.abs(el.offsetTop - top) < Math.abs(best.offsetTop - top)) nearest = i;
+    });
+    setActive(nearest);
+  };
 
   useEffect(() => {
     if (!toast) return;
@@ -88,7 +83,7 @@ export function App() {
     <div className="app">
       <Header bagCount={bag.length} onMenu={() => setMenuOpen(true)} onBag={showBag} />
 
-      <main className="feed">
+      <main className="feed" onScroll={handleFeedScroll}>
         {looks.map((look, i) => (
           <LookCard
             key={look.id}
