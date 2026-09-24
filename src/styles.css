@@ -10,7 +10,8 @@
   --text: #000000;
   --muted: #6b6b6b;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', sans-serif;
+  line-height: normal;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -185,8 +186,6 @@ ul {
   padding: 4px 4px 4px 16px;
   border-radius: 50px;
   background: var(--glass-dark);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   white-space: nowrap;
 }
 
@@ -223,7 +222,8 @@ ul {
 /* Bottom dock ------------------------------------------------------------ */
 
 .dock {
-  bottom: calc(18px + var(--safe-bottom));
+  /* Figma: 11px below the 4px divider, same as the 11px side inset. Clamped for short screens. */
+  top: min(calc(var(--hero-h) + 15px), calc(100dvh - 199px - 12px - var(--safe-bottom)));
   z-index: 10;
   width: calc(var(--app-w) - 22px);
   display: flex;
@@ -289,7 +289,6 @@ ul {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
   padding: 4px;
   border-radius: 100px;
   background: var(--glass-bar);
