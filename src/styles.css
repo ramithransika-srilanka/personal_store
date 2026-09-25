@@ -6,8 +6,9 @@
   --divider: #f6f6f6;
   --glass-dark: rgba(26, 26, 26, 0.5);
   --glass-bar: rgba(24, 24, 24, 0.5);
-  --glass-btn: rgba(112, 112, 112, 0.5);
-  --glass-btn-2: rgba(123, 123, 123, 0.5);
+  --glass-light: rgba(255, 255, 255, 0.7);
+  --ask-text: #1a1a1a;
+  --ask-btn: rgba(0, 0, 0, 0.07);
   --icon: #ffffff;
   /* Figma says 4.3px, which barely shows in a browser; stronger so the blur reads. */
   --chat-blur: 16px;
@@ -117,8 +118,8 @@ ul {
 }
 
 .header__avatar {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   border: 2px solid #fff;
   border-radius: 100px;
   object-fit: cover;
@@ -172,6 +173,8 @@ ul {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* The photo's blurred placeholder, cropped like the photo, until the photo paints over it. */
+  background: center / cover no-repeat;
   opacity: 0;
   transition: opacity 0.35s ease;
 }
@@ -236,6 +239,32 @@ ul {
 
 /* Bottom dock ------------------------------------------------------------ */
 
+/* Always there, over whatever is scrolled behind: darkens and blurs the bottom of the screen,
+   fading out upward just above the photo row. The mask fades the blur in, not just the tint. */
+.dock-scrim,
+.dock-scrim::before {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  width: var(--app-w);
+  height: calc(250px + var(--dock-bottom));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.dock-scrim {
+  z-index: 9;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(to top, #000 55%, transparent);
+  mask-image: linear-gradient(to top, #000 55%, transparent);
+}
+
+.dock-scrim::before {
+  content: '';
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.35) 55%, transparent);
+}
+
 .dock {
   /* Anchored to the bottom on every screen: dock 10px up + 6px padding = 16px under the
      chat box. The 8px gap to the photo row is the flex gap below. */
@@ -287,6 +316,7 @@ ul {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background: center / cover no-repeat;
 }
 
 .chips {
@@ -311,9 +341,10 @@ ul {
   justify-content: space-between;
   padding: 4px;
   border-radius: 100px;
-  background: var(--glass-bar);
+  background: var(--glass-light);
   -webkit-backdrop-filter: blur(var(--chat-blur));
   backdrop-filter: blur(var(--chat-blur));
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
 }
 
 .ask__left {
@@ -329,12 +360,12 @@ ul {
   display: flex;
   padding: 10px;
   border-radius: 100px;
-  color: var(--icon);
+  color: var(--ask-text);
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .ask__btn--plus {
-  background: var(--glass-btn);
+  background: var(--ask-btn);
 }
 
 .ask__btn--plus.is-open {
@@ -342,7 +373,8 @@ ul {
 }
 
 .ask__btn--send {
-  background: var(--glass-btn-2);
+  background: var(--ask-text);
+  color: #fff;
 }
 
 .ask__btn--send:disabled {
@@ -355,14 +387,14 @@ ul {
   border: 0;
   outline: 0;
   background: none;
-  color: #fff;
+  color: var(--ask-text);
   font-family: inherit;
   font-size: 14px;
   font-weight: 400;
 }
 
 .ask__input::placeholder {
-  color: #fff;
+  color: #4a4a4a;
   opacity: 1;
 }
 

@@ -21,14 +21,16 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
     setHasMore(!!el && el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
   };
 
-  // The first photo is the one already shown full-size above, so the strip starts
-  // scrolled past it; swiping right reveals it.
+  // Each look's strip starts from its left edge (the scroll position would otherwise carry
+  // over from the previous look).
   useLayoutEffect(() => {
-    const el = thumbsRef.current;
-    const [first, second] = (el?.children ?? []) as HTMLCollectionOf<HTMLElement>;
-    if (el && first && second) el.scrollLeft = second.offsetLeft - first.offsetLeft;
+    if (thumbsRef.current) thumbsRef.current.scrollLeft = 0;
     updateFade();
   }, [look, showSuggestions]);
+
+  // The first photo is the one already shown full-size above, so the strip leads with the
+  // second and keeps the first at the end, where it can still be picked.
+  const order = look.images.map((_, i) => (i + 1) % look.images.length);
 
   const submit = (e?: FormEvent) => {
     e?.preventDefault();
@@ -56,19 +58,23 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
           role="tablist"
           aria-label={`${look.name} photos`}
         >
-          {look.images.map((src, i) => (
-            <button
-              key={src}
-              role="tab"
-              aria-selected={i === imageIndex}
-              aria-label={`Photo ${i + 1}`}
-              className={`thumb${i === imageIndex ? ' is-active' : ''}`}
-              style={{ '--i': i - 1 } as CSSProperties}
-              onClick={() => onSelectImage(i)}
-            >
-              <img src={src} alt="" loading="lazy" />
-            </button>
-          ))}
+          {order.map((i, position) => {
+            const photo = look.images[i];
+            return (
+              <button
+                key={photo.src}
+                role="tab"
+                aria-selected={i === imageIndex}
+                aria-label={`Photo ${i + 1}`}
+                className={`thumb${i === imageIndex ? ' is-active' : ''}`}
+                style={{ '--i': position } as CSSProperties}
+                onClick={() => onSelectImage(i)}
+              >
+                {/* Preloaded small thumbnails: decoding in sync means a new strip appears whole. */}
+                <img src={photo.thumb} alt="" decoding="sync" style={{ backgroundImage: photo.placeholder }} />
+              </button>
+            );
+          })}
         </div>
       )}
       <form className="ask" onSubmit={submit}>
