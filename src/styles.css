@@ -278,18 +278,27 @@ ul {
   border-radius: 28px;
 }
 
+/* Registered so the right-edge fade below can transition instead of snapping on and off. */
+@property --edge-fade {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
 .thumbs {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   scroll-snap-type: x proximity;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - var(--edge-fade)), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--edge-fade)), transparent);
+  transition: --edge-fade 200ms ease;
 }
 
 .thumbs.has-more {
   /* Fade the partly visible last photo out to the right (a photo is 96px + 8px gap). */
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 47px), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 47px), transparent);
+  --edge-fade: 47px;
 }
 
 .thumbs::-webkit-scrollbar {
@@ -304,7 +313,14 @@ ul {
   scroll-snap-align: start;
   outline: 2px solid transparent;
   outline-offset: -2px;
-  transition: outline-color 0.2s ease;
+  transition:
+    outline-color 200ms ease,
+    transform 160ms var(--ease-out-strong);
+}
+
+.thumb:active,
+.chip:active {
+  transform: scale(0.97);
 }
 
 .thumb.is-active {
@@ -333,6 +349,31 @@ ul {
   backdrop-filter: blur(var(--chat-blur));
   color: #fff;
   font-size: 14px;
+  transition: transform 160ms var(--ease-out-strong);
+}
+
+/* Row changes (a new look scrolled in, or + swapping photos and suggestions) ---------------
+   The old row slips out to the left fast, the new one follows in from the right, one item
+   at a time, like the intro. Short and small on purpose: this happens on every scroll. */
+
+.row-leaving {
+  opacity: 0;
+  transform: translateX(-8px);
+  pointer-events: none;
+  transition:
+    opacity 140ms var(--ease-out-strong),
+    transform 140ms var(--ease-out-strong);
+}
+
+.row-entering > * {
+  animation: row-enter 280ms var(--ease-out-strong) calc(var(--i, 0) * 30ms) both;
+}
+
+@keyframes row-enter {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
 }
 
 .ask {
@@ -627,5 +668,14 @@ ul {
   /* Keep the staged reveal, but as plain fades with no movement. */
   .app[data-intro='playing'] :is(.ask, .ask__btn--plus, .ask__input, .price-pill, .thumb) {
     animation: intro-fade 300ms ease-out both;
+  }
+
+  .row-entering > * {
+    animation: intro-fade 200ms ease-out both;
+  }
+
+  .thumb:active,
+  .chip:active {
+    transform: none;
   }
 }
