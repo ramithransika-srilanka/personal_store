@@ -189,13 +189,31 @@ ul {
   pointer-events: none;
 }
 
-.price-pill {
+/* Store logo + price pill, centred together as one group. */
+.buy-bar {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 12px;
   width: fit-content;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* A circle as tall as the pill (4px padding + the 33px Buy button), stroke included. */
+.buy-bar__logo {
+  box-sizing: border-box;
+  width: 41px;
+  height: 41px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #000;
+}
+
+.price-pill {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -545,7 +563,7 @@ ul {
 /* Intro ------------------------------------------------------------------
    Plays once when the app opens. Only the photos and the header show at first;
    then the send button springs up in the middle, slides right, stretches into the chat box, the + and the
-   placeholder follow, the price pill rises with the chat box, and the photo
+   placeholder follow, the price pill and store logo rise with the chat box, and the photo
    strip slides in one photo at a time. */
 
 :root {
@@ -564,7 +582,7 @@ ul {
 }
 
 /* Before the first photo has decoded, keep everything but the photos and header hidden. */
-.app[data-intro='pending'] :is(.ask, .price-pill, .thumb) {
+.app[data-intro='pending'] :is(.ask, .buy-bar, .thumb) {
   opacity: 0;
 }
 
@@ -590,7 +608,7 @@ ul {
   animation: intro-text 360ms var(--ease-out-strong) 1220ms both;
 }
 
-.app[data-intro='playing'] .price-pill {
+.app[data-intro='playing'] .buy-bar {
   transform-origin: 50% 100%;
   animation:
     intro-fade 200ms ease-out 820ms both,
@@ -666,7 +684,7 @@ ul {
   }
 
   /* Keep the staged reveal, but as plain fades with no movement. */
-  .app[data-intro='playing'] :is(.ask, .ask__btn--plus, .ask__input, .price-pill, .thumb) {
+  .app[data-intro='playing'] :is(.ask, .ask__btn--plus, .ask__input, .buy-bar, .thumb) {
     animation: intro-fade 300ms ease-out both;
   }
 

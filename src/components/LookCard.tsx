@@ -62,11 +62,14 @@ export const LookCard = forwardRef<HTMLElement, Props>(function LookCard(
           />
         ))}
         {look.video && <HeroVideo src={look.video} active={shown === 0} />}
-        <div className="price-pill">
-          <span className="price-pill__price">{formatPrice(look.price)}</span>
-          <button className="price-pill__buy" onClick={onBuy}>
-            Buy
-          </button>
+        <div className="buy-bar">
+          <img className="buy-bar__logo" src={look.store.logo} alt={look.store.name} decoding="async" />
+          <div className="price-pill">
+            <span className="price-pill__price">{formatPrice(look.price)}</span>
+            <button className="price-pill__buy" onClick={onBuy}>
+              Buy
+            </button>
+          </div>
         </div>
       </div>
     </section>
