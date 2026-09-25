@@ -2,7 +2,14 @@ import floral1 from '../assets/looks/floral-1.webp';
 import floral2 from '../assets/looks/floral-2.webp';
 import floral3 from '../assets/looks/floral-3.webp';
 import floral4 from '../assets/looks/floral-4.webp';
-import satinHero from '../assets/looks/satin-hero.webp';
+import rugbyPolo1 from '../assets/looks/rugby-polo-1.webp';
+import rugbyPolo2 from '../assets/looks/rugby-polo-2.webp';
+import rugbyPolo3 from '../assets/looks/rugby-polo-3.webp';
+import rugbyPolo4 from '../assets/looks/rugby-polo-4.webp';
+import tealSlipDress1 from '../assets/looks/teal-slip-dress-1.webp';
+import tealSlipDress2 from '../assets/looks/teal-slip-dress-2.webp';
+import tealSlipDress3 from '../assets/looks/teal-slip-dress-3.webp';
+import tealSlipDress4 from '../assets/looks/teal-slip-dress-4.webp';
 
 export type Look = {
   id: string;
@@ -29,15 +36,22 @@ export const looks: Look[] = [
     video: floralVideo,
   },
   {
-    id: 'lime-satin-halter',
-    name: 'Lime Satin Halter Top',
-    price: 4499,
-    tags: ['top', 'crop', 'satin', 'halter', 'green', 'party'],
-    images: [satinHero],
+    id: 'calista-rugby-polo',
+    name: 'Calista Rugby Polo Shirt',
+    price: 4299,
+    tags: ['top', 'polo', 'rugby', 'shirt', 'orange', 'navy', 'streetwear', 'casual'],
+    images: [rugbyPolo1, rugbyPolo2, rugbyPolo3, rugbyPolo4],
+  },
+  {
+    id: 'teal-slip-dress',
+    name: 'Teal Slip Midi Dress',
+    price: 5499,
+    tags: ['dress', 'midi', 'slip', 'teal', 'green', 'bodycon', 'party'],
+    images: [tealSlipDress1, tealSlipDress2, tealSlipDress3, tealSlipDress4],
   },
 ];
 
-export const suggestions = ['Crop tops', 'Floral', 'Satin', 'Party wear'];
+export const suggestions = ['Crop tops', 'Floral', 'Polo shirts', 'Dresses'];
 
 export function formatPrice(value: number) {
   return `Rs. ${value.toLocaleString('en-US')}`;
