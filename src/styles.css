@@ -18,6 +18,10 @@
   --bubble-me: #e8e8e8;
   --option-border: #e8edfd;
   --accent: #1548eb;
+  /* Chat spacing, on a 4px grid: bubbles in a run 4, a question to its choices 8,
+     two questions 16, one speaker to the other 24. 16px gutters; every control 36px tall. */
+  --chat-gutter: 16px;
+  --chat-row: 36px;
   --muted: #6b6b6b;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --dock-bottom: 10px;
@@ -504,7 +508,8 @@ ul {
 }
 
 .chat__top {
-  padding: calc(29px + env(safe-area-inset-top, 0px)) 21px 0;
+  /* Level with the feed header; the button's own 8px padding puts the chevron on the gutter. */
+  padding: calc(12px + env(safe-area-inset-top, 0px)) calc(var(--chat-gutter) - 8px) 0;
   animation: intro-fade 240ms var(--ease-out-strong) 120ms both;
 }
 
@@ -512,17 +517,23 @@ ul {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  height: var(--chat-row);
+  padding: 0 8px;
   border-radius: 20px;
   color: #000;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
-  line-height: 16px;
+  line-height: 20px;
+  transition: transform 160ms var(--ease-out-strong);
+}
+
+.chat__back:active {
+  transform: scale(0.96);
 }
 
 .chat__back svg {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 .chat__log {
@@ -531,9 +542,9 @@ ul {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  /* Clears the chat box: 54px tall, 16px up, plus 16px of air. */
-  padding: 31px 22px calc(86px + var(--safe-bottom)) 18px;
+  gap: 24px;
+  /* Clears the chat box: 52px tall, 16px up, plus 24px of air. */
+  padding: 16px var(--chat-gutter) calc(92px + var(--safe-bottom));
   scrollbar-width: none;
 }
 
@@ -552,8 +563,19 @@ ul {
   align-items: flex-end;
 }
 
-.msgs--product {
-  margin-bottom: 20px;
+.msgs--ask {
+  gap: 8px;
+}
+
+.msgs-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* The photo gets a little more room than a bubble. */
+.msgs--product .chat__photo {
+  margin-bottom: 4px;
 }
 
 .chat__photo {
@@ -566,10 +588,14 @@ ul {
 }
 
 .bubble {
+  max-width: 80%;
+  min-height: var(--chat-row);
   padding: 8px 16px;
-  border-radius: 200px;
+  /* Half the row height: a pill on one line, still a bubble if it wraps. */
+  border-radius: 18px;
   color: #000;
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 20px;
 }
 
 .bubble--bot {
@@ -590,8 +616,8 @@ ul {
 
 .swatch {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--c);
   outline: 2px solid transparent;
@@ -619,11 +645,13 @@ ul {
 }
 
 .option {
-  padding: 8px 16px;
+  height: var(--chat-row);
+  padding: 0 16px;
   border: 1px solid var(--option-border);
   border-radius: 200px;
   color: #000;
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 20px;
   transition:
     background-color 200ms ease,
     border-color 200ms ease,
@@ -671,7 +699,6 @@ ul {
   display: flex;
   align-items: center;
   gap: 4px;
-  height: 31px;
 }
 
 .bubble--typing span {
@@ -705,8 +732,8 @@ ul {
 
 .chat__dock {
   position: absolute;
-  left: 17px;
-  right: 17px;
+  left: var(--chat-gutter);
+  right: var(--chat-gutter);
   bottom: calc(16px + var(--safe-bottom));
   animation:
     intro-fade 240ms var(--ease-out-strong) 160ms both,
