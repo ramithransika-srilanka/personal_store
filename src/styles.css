@@ -13,6 +13,11 @@
   /* Figma says 4.3px, which barely shows in a browser; stronger so the blur reads. */
   --chat-blur: 16px;
   --text: #000000;
+  /* Chat bubbles: the store's in blue, the shopper's in grey. */
+  --bubble-bot: rgba(21, 72, 235, 0.1);
+  --bubble-me: #e8e8e8;
+  --option-border: #e8edfd;
+  --accent: #1548eb;
   --muted: #6b6b6b;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --dock-bottom: 10px;
@@ -162,6 +167,8 @@ ul {
 
 .look__media {
   position: relative;
+  /* Tapping the photo opens the purchase chat. */
+  cursor: pointer;
   height: var(--hero-h);
   overflow: hidden;
   background: #e8e4df;
@@ -189,13 +196,31 @@ ul {
   pointer-events: none;
 }
 
-.price-pill {
+/* Store logo + price pill, centred together as one group. */
+.buy-bar {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 12px;
   width: fit-content;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* A circle as tall as the pill (4px padding + the 33px Buy button), stroke included. */
+.buy-bar__logo {
+  box-sizing: border-box;
+  width: 41px;
+  height: 41px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #000;
+}
+
+.price-pill {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -439,6 +464,261 @@ ul {
   opacity: 1;
 }
 
+/* Purchase chat ----------------------------------------------------------
+   Opens over the feed from the price pill. The product the shopper tapped comes in on the
+   right, then the store's questions on the left; picks come back as the shopper's bubbles. */
+
+.chat {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  width: var(--app-w);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  /* Only the page fades; the photo flies in on its own (.chat-flight) and the rest staggers. */
+  animation: intro-fade 220ms var(--ease-out-strong) both;
+}
+
+/* Out faster than in, and without the stagger. */
+.chat.is-closing {
+  opacity: 0;
+  translate: 0 12px;
+  pointer-events: none;
+  transition:
+    opacity 180ms var(--ease-out-strong),
+    translate 180ms var(--ease-out-strong);
+}
+
+/* The copy of the tapped photo that glides from the feed into the thread (see Chat.tsx). */
+.chat-flight {
+  position: fixed;
+  z-index: 26;
+  object-fit: cover;
+  background: center / cover no-repeat;
+  pointer-events: none;
+}
+
+.chat__top {
+  padding: calc(29px + env(safe-area-inset-top, 0px)) 21px 0;
+  animation: intro-fade 240ms var(--ease-out-strong) 120ms both;
+}
+
+.chat__back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.chat__back svg {
+  width: 16px;
+  height: 16px;
+}
+
+.chat__log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Clears the chat box: 54px tall, 16px up, plus 16px of air. */
+  padding: 31px 22px calc(86px + var(--safe-bottom)) 18px;
+  scrollbar-width: none;
+}
+
+.chat__log::-webkit-scrollbar {
+  display: none;
+}
+
+.msgs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.msgs--me {
+  align-items: flex-end;
+}
+
+.msgs--product {
+  margin-bottom: 20px;
+}
+
+.chat__photo {
+  display: block;
+  width: 112px;
+  height: 148px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: center / cover no-repeat;
+}
+
+.bubble {
+  padding: 8px 16px;
+  border-radius: 200px;
+  color: #000;
+  font-size: 12px;
+}
+
+.bubble--bot {
+  background: var(--bubble-bot);
+}
+
+.bubble--me {
+  background: var(--bubble-me);
+}
+
+.swatches {
+  display: flex;
+  gap: 12px;
+  padding: 4px;
+  border-radius: 100px;
+  background: var(--bubble-bot);
+}
+
+.swatch {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--c);
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  transition:
+    outline-color 200ms ease,
+    transform 160ms var(--ease-out-strong);
+}
+
+/* A bigger tap target than the 24px dot. */
+.swatch::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.swatch.is-selected {
+  outline-color: var(--accent);
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option {
+  padding: 8px 16px;
+  border: 1px solid var(--option-border);
+  border-radius: 200px;
+  color: #000;
+  font-size: 12px;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    transform 160ms var(--ease-out-strong);
+}
+
+.option.is-selected {
+  border-color: var(--accent);
+  background: var(--bubble-bot);
+}
+
+.swatch:active,
+.option:active {
+  transform: scale(0.96);
+}
+
+/* Each message pops out of its tail corner after its --d delay: it comes into focus fast
+   (ease-out) while it rises and grows on a soft spring, so it lands with a tiny settle. */
+.enter {
+  transform-origin: 0 100%;
+  animation:
+    msg-fade 200ms var(--ease-out-strong) var(--d, 0ms) both,
+    msg-pop 420ms var(--spring-soft) var(--d, 0ms) both;
+}
+
+.msgs--me .enter {
+  transform-origin: 100% 100%;
+}
+
+@keyframes msg-fade {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
+@keyframes msg-pop {
+  from {
+    transform: translateY(6px) scale(0.95);
+  }
+}
+
+/* "…" while the store is replying. */
+.bubble--typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 31px;
+}
+
+.bubble--typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  animation: typing 1s ease-in-out infinite;
+}
+
+.bubble--typing span:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.bubble--typing span:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.4;
+    transform: none;
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.chat__dock {
+  position: absolute;
+  left: 17px;
+  right: 17px;
+  bottom: calc(16px + var(--safe-bottom));
+  animation:
+    intro-fade 240ms var(--ease-out-strong) 160ms both,
+    dock-rise 360ms var(--ease-out-strong) 160ms both;
+}
+
+@keyframes dock-rise {
+  from {
+    transform: translateY(12px);
+  }
+}
+
 /* Sheets ----------------------------------------------------------------- */
 
 .sheet-layer {
@@ -545,7 +825,7 @@ ul {
 /* Intro ------------------------------------------------------------------
    Plays once when the app opens. Only the photos and the header show at first;
    then the send button springs up in the middle, slides right, stretches into the chat box, the + and the
-   placeholder follow, the price pill rises with the chat box, and the photo
+   placeholder follow, the price pill and store logo rise with the chat box, and the photo
    strip slides in one photo at a time. */
 
 :root {
@@ -564,11 +844,11 @@ ul {
 }
 
 /* Before the first photo has decoded, keep everything but the photos and header hidden. */
-.app[data-intro='pending'] :is(.ask, .price-pill, .thumb) {
+.app[data-intro='pending'] :is(.dock .ask, .buy-bar, .thumb) {
   opacity: 0;
 }
 
-.app[data-intro='playing'] .ask {
+.app[data-intro='playing'] .dock .ask {
   /* The send button's circle pops up in the middle, slides to its place on the
      right (the `translate` property, so it composes with the rise's `transform`),
      then stretches left into the chat box. */
@@ -580,17 +860,17 @@ ul {
     intro-spread 620ms var(--spring-soft) 820ms both;
 }
 
-.app[data-intro='playing'] .ask__btn--plus {
+.app[data-intro='playing'] .dock .ask__btn--plus {
   animation:
     intro-fade 160ms ease-out 1100ms both,
     intro-pop 520ms var(--spring-bouncy) 1100ms both;
 }
 
-.app[data-intro='playing'] .ask__input {
+.app[data-intro='playing'] .dock .ask__input {
   animation: intro-text 360ms var(--ease-out-strong) 1220ms both;
 }
 
-.app[data-intro='playing'] .price-pill {
+.app[data-intro='playing'] .buy-bar {
   transform-origin: 50% 100%;
   animation:
     intro-fade 200ms ease-out 820ms both,
@@ -666,8 +946,30 @@ ul {
   }
 
   /* Keep the staged reveal, but as plain fades with no movement. */
-  .app[data-intro='playing'] :is(.ask, .ask__btn--plus, .ask__input, .price-pill, .thumb) {
+  .app[data-intro='playing'] .dock :is(.ask, .ask__btn--plus, .ask__input),
+  .app[data-intro='playing'] :is(.buy-bar, .thumb) {
     animation: intro-fade 300ms ease-out both;
+  }
+
+  .chat.is-closing {
+    translate: none;
+  }
+
+  .chat__dock {
+    animation: intro-fade 240ms ease-out 160ms both;
+  }
+
+  .enter {
+    animation: intro-fade 200ms ease-out var(--d, 0ms) both;
+  }
+
+  .bubble--typing span {
+    animation: intro-fade 1s ease-in-out infinite alternate;
+  }
+
+  .swatch:active,
+  .option:active {
+    transform: none;
   }
 
   .row-entering > * {

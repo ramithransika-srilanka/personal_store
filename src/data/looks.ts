@@ -2,6 +2,7 @@ import { placeholders } from './placeholders';
 
 const photos = import.meta.glob<string>('../assets/looks/*.webp', { eager: true, import: 'default' });
 const thumbs = import.meta.glob<string>('../assets/looks/thumbs/*.webp', { eager: true, import: 'default' });
+const storeLogos = import.meta.glob<string>('../assets/stores/*.webp', { eager: true, import: 'default' });
 
 export type Photo = {
   /** Full-size photo (1080px wide). */
@@ -18,10 +19,30 @@ function photo(name: string, src = photos[`../assets/looks/${name}.webp`]): Phot
   return { src, thumb, placeholder: `url("${placeholders[name]}")` };
 }
 
+export type Store = {
+  name: string;
+  /** Square logo, shown in a circle next to the price. */
+  logo: string;
+};
+
+function store(name: string, file: string): Store {
+  const logo = storeLogos[`../assets/stores/${file}.webp`];
+  if (!logo) throw new Error(`Missing store logo "${file}"`);
+  return { name, logo };
+}
+
+export type Swatch = { name: string; hex: string };
+
+// Sizes offered in the chat, as in Figma.
+const sizes = ['XSmall', 'Medium', 'Large'];
+
 export type Look = {
   id: string;
   name: string;
   price: number;
+  store: Store;
+  colors: Swatch[];
+  sizes: string[];
   tags: string[];
   images: Photo[];
   /** Plays in place of images[0], which must be the video's first frame. */
@@ -38,6 +59,14 @@ export const looks: Look[] = [
     id: 'floral-ruffle-crop',
     name: 'Floral Ruffle Crop Top',
     price: 3999,
+    store: store('Carnage', 'carnage'),
+    colors: [
+      { name: 'White', hex: '#ffffff' },
+      { name: 'Black', hex: '#2b2b2b' },
+      { name: 'Pink', hex: '#ec8fd6' },
+      { name: 'Sky blue', hex: '#3aa8e8' },
+    ],
+    sizes,
     tags: ['top', 'crop', 'floral', 'print', 'ruffle', 'summer'],
     images: [
       photo('hero-poster', floralPoster),
@@ -52,6 +81,13 @@ export const looks: Look[] = [
     id: 'calista-rugby-polo',
     name: 'Calista Rugby Polo Shirt',
     price: 4299,
+    store: store('Briksy', 'briksy'),
+    colors: [
+      { name: 'Orange', hex: '#f07c2a' },
+      { name: 'Navy', hex: '#1f2a4d' },
+      { name: 'White', hex: '#ffffff' },
+    ],
+    sizes,
     tags: ['top', 'polo', 'rugby', 'shirt', 'orange', 'navy', 'streetwear', 'casual'],
     images: [photo('rugby-polo-1'), photo('rugby-polo-2'), photo('rugby-polo-3'), photo('rugby-polo-4')],
   },
@@ -59,6 +95,13 @@ export const looks: Look[] = [
     id: 'teal-slip-dress',
     name: 'Teal Slip Midi Dress',
     price: 5499,
+    store: store('Sunora', 'sunora'),
+    colors: [
+      { name: 'Teal', hex: '#1f8a86' },
+      { name: 'Black', hex: '#2b2b2b' },
+      { name: 'Wine', hex: '#7a1f3d' },
+    ],
+    sizes,
     tags: ['dress', 'midi', 'slip', 'teal', 'green', 'bodycon', 'party'],
     images: [
       photo('teal-slip-dress-1'),

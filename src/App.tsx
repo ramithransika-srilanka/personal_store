@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type UIEvent } from 'react';
 import { BottomDock } from './components/BottomDock';
+import { Chat, type Rect } from './components/Chat';
 import { Header } from './components/Header';
 import { LookCard } from './components/LookCard';
 import { Sheet } from './components/Sheet';
@@ -10,6 +11,10 @@ type BagItem = { lookId: string };
 
 const BAG_KEY = 'personal-store:bag';
 const INTRO_MS = 2300;
+// Matches the .chat.is-closing transition.
+const CHAT_CLOSE_MS = 180;
+// A photo tap this soon after the feed last moved is a tap to stop the scroll, not to buy.
+const SCROLL_SETTLE_MS = 250;
 
 function loadBag(): BagItem[] {
   try {
@@ -22,10 +27,15 @@ function loadBag(): BagItem[] {
 export function App() {
   const [active, setActive] = useState(0);
   const [imageIndex, setImageIndex] = useState<number[]>(() => looks.map(() => 0));
-  const [bag, setBag] = useState<BagItem[]>(loadBag);
+  // Nothing adds to the bag yet: Buy now starts the purchase chat, which doesn't check out.
+  const [bag] = useState<BagItem[]>(loadBag);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [intro, setIntro] = useState<'pending' | 'playing' | 'done'>('pending');
+  // The look being bought and the photo that was showing when Buy was tapped.
+  const [chat, setChat] = useState<{ look: number; image: number; from?: Rect } | null>(null);
+  const [chatClosing, setChatClosing] = useState(false);
+  const lastScrollAt = useRef(0);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   // Start the intro once the first photo is ready (or after 1s at most), and drop the
@@ -60,16 +70,9 @@ export function App() {
     ]);
   }, [introStarted]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(BAG_KEY, JSON.stringify(bag));
-    } catch {
-      /* storage unavailable */
-    }
-  }, [bag]);
-
   // The look snapped to the top of the feed drives the dock's photo strip.
   const handleFeedScroll = (e: UIEvent<HTMLElement>) => {
+    lastScrollAt.current = performance.now();
     const top = e.currentTarget.scrollTop;
     let nearest = 0;
     sectionRefs.current.forEach((el, i) => {
@@ -98,10 +101,35 @@ export function App() {
     scrollToLook(index);
   };
 
-  const addToBag = (index: number) => {
-    setBag((b) => [...b, { lookId: looks[index].id }]);
-    setToast('Added to bag');
+  const openChat = (index: number) => {
+    setChatClosing(false);
+    // Where the photo is now, so the chat can lift it from there into its thread.
+    const media = sectionRefs.current[index]?.querySelector('.look__media');
+    const r = media?.getBoundingClientRect();
+    setChat({ look: index, image: imageIndex[index], from: r && { x: r.x, y: r.y, width: r.width, height: r.height } });
   };
+
+  // Only the look settled on screen opens from its photo, and only once the feed is still
+  // (not mid-swipe, mid-momentum or mid-snap).
+  const tapPhoto = (index: number) => {
+    const el = sectionRefs.current[index];
+    const feed = el?.parentElement;
+    if (!el || !feed) return;
+    if (performance.now() - lastScrollAt.current < SCROLL_SETTLE_MS) return;
+    if (Math.abs(el.offsetTop - feed.scrollTop) > 2) return;
+    openChat(index);
+  };
+
+  const closeChat = useCallback(() => setChatClosing(true), []);
+
+  useEffect(() => {
+    if (!chatClosing) return;
+    const t = setTimeout(() => {
+      setChat(null);
+      setChatClosing(false);
+    }, CHAT_CLOSE_MS);
+    return () => clearTimeout(t);
+  }, [chatClosing]);
 
   const showBag = () => {
     if (!bag.length) {
@@ -128,7 +156,8 @@ export function App() {
             look={look}
             imageIndex={imageIndex[i]}
             near={Math.abs(i - active) <= 1}
-            onBuy={() => addToBag(i)}
+            onBuy={() => openChat(i)}
+            onPhotoTap={() => tapPhoto(i)}
           />
         ))}
         <div className="feed__end">You're all caught up</div>
@@ -161,6 +190,17 @@ export function App() {
           ))}
         </ul>
       </Sheet>
+
+      {chat && (
+        <Chat
+          key={`${chat.look}-${chat.image}`}
+          look={looks[chat.look]}
+          imageIndex={chat.image}
+          from={chat.from}
+          closing={chatClosing}
+          onClose={closeChat}
+        />
+      )}
 
       <div className={`toast${toast ? ' is-visible' : ''}`} role="status">
         {toast}
