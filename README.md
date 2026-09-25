@@ -33,5 +33,18 @@ instantly. The video plays only while it's on screen and selected, and stays on 
 reduced motion or data saver. Serve `/media` with long cache headers and byte-range support
 (most static hosts do both).
 
+### Images
+
+Product photos in `src/assets/looks/` are used as-is (1080×1350 WebP, never recompressed).
+`npm run images` makes their companions (commit the output after adding or replacing a photo):
+3× thumbnails for the photo strip in `src/assets/looks/thumbs/`, and ~200-byte blurred placeholders
+in `src/data/placeholders.ts` that show under each photo until it paints.
+
+After the first photo appears, every thumbnail and then every full photo is fetched in idle time,
+and the looks on and next to the screen load theirs eagerly. A photo picked from the strip keeps
+the previous one up until it has decoded, so the cross-fade never shows a blank frame. In
+production, `public/sw.js` keeps the photos, fonts and built files on the device, so repeat visits
+load them without touching the network.
+
 Products live in `src/data/looks.ts` (sample data — replace with an API when a backend exists).
 Checkout is not wired up yet.

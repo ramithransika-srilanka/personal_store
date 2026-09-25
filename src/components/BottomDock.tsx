@@ -56,9 +56,9 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
           role="tablist"
           aria-label={`${look.name} photos`}
         >
-          {look.images.map((src, i) => (
+          {look.images.map((photo, i) => (
             <button
-              key={src}
+              key={photo.src}
               role="tab"
               aria-selected={i === imageIndex}
               aria-label={`Photo ${i + 1}`}
@@ -66,7 +66,8 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
               style={{ '--i': i - 1 } as CSSProperties}
               onClick={() => onSelectImage(i)}
             >
-              <img src={src} alt="" loading="lazy" />
+              {/* Preloaded small thumbnails: decoding in sync means a new strip appears whole. */}
+              <img src={photo.thumb} alt="" decoding="sync" style={{ backgroundImage: photo.placeholder }} />
             </button>
           ))}
         </div>

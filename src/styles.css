@@ -172,6 +172,8 @@ ul {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /* The photo's blurred placeholder, cropped like the photo, until the photo paints over it. */
+  background: center / cover no-repeat;
   opacity: 0;
   transition: opacity 0.35s ease;
 }
@@ -287,6 +289,7 @@ ul {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background: center / cover no-repeat;
 }
 
 .chips {

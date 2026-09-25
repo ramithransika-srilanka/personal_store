@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { LookCard } from './components/LookCard';
 import { Sheet } from './components/Sheet';
 import { formatPrice, looks, searchLooks } from './data/looks';
+import { preloadImages } from './lib/preload';
 
 type BagItem = { lookId: string };
 
@@ -39,7 +40,7 @@ export function App() {
       timers.push(window.setTimeout(() => setIntro('done'), INTRO_MS));
     };
     const img = new Image();
-    img.src = looks[0].images[0];
+    img.src = looks[0].images[0].src;
     img.decode().then(() => timers.push(window.setTimeout(start, 150)), start);
     timers.push(window.setTimeout(start, 1000));
     return () => {
@@ -47,6 +48,17 @@ export function App() {
       timers.forEach(clearTimeout);
     };
   }, []);
+
+  // Once the first photo is up, quietly fetch the rest: every strip thumbnail first (small, and
+  // needed the moment a look scrolls in), then the full photos in feed order.
+  const introStarted = intro !== 'pending';
+  useEffect(() => {
+    if (!introStarted) return;
+    return preloadImages([
+      ...looks.flatMap((look) => look.images.map((photo) => photo.thumb)),
+      ...looks.flatMap((look) => look.images.map((photo) => photo.src)),
+    ]);
+  }, [introStarted]);
 
   useEffect(() => {
     try {
@@ -115,6 +127,7 @@ export function App() {
             }}
             look={look}
             imageIndex={imageIndex[i]}
+            near={Math.abs(i - active) <= 1}
             onBuy={() => addToBag(i)}
           />
         ))}
@@ -138,7 +151,7 @@ export function App() {
                   scrollToLook(i);
                 }}
               >
-                <img src={look.images[0]} alt="" />
+                <img src={look.images[0].thumb} alt="" />
                 <span>{look.name}</span>
               </button>
             </li>
