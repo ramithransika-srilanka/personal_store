@@ -13,6 +13,8 @@ const BAG_KEY = 'personal-store:bag';
 const INTRO_MS = 2300;
 // Matches the .chat.is-closing transition.
 const CHAT_CLOSE_MS = 220;
+// A photo tap this soon after the feed last moved is a tap to stop the scroll, not to buy.
+const SCROLL_SETTLE_MS = 250;
 
 function loadBag(): BagItem[] {
   try {
@@ -33,6 +35,7 @@ export function App() {
   // The look being bought and the photo that was showing when Buy was tapped.
   const [chat, setChat] = useState<{ look: number; image: number } | null>(null);
   const [chatClosing, setChatClosing] = useState(false);
+  const lastScrollAt = useRef(0);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   // Start the intro once the first photo is ready (or after 1s at most), and drop the
@@ -69,6 +72,7 @@ export function App() {
 
   // The look snapped to the top of the feed drives the dock's photo strip.
   const handleFeedScroll = (e: UIEvent<HTMLElement>) => {
+    lastScrollAt.current = performance.now();
     const top = e.currentTarget.scrollTop;
     let nearest = 0;
     sectionRefs.current.forEach((el, i) => {
@@ -100,6 +104,17 @@ export function App() {
   const openChat = (index: number) => {
     setChatClosing(false);
     setChat({ look: index, image: imageIndex[index] });
+  };
+
+  // Only the look settled on screen opens from its photo, and only once the feed is still
+  // (not mid-swipe, mid-momentum or mid-snap).
+  const tapPhoto = (index: number) => {
+    const el = sectionRefs.current[index];
+    const feed = el?.parentElement;
+    if (!el || !feed) return;
+    if (performance.now() - lastScrollAt.current < SCROLL_SETTLE_MS) return;
+    if (Math.abs(el.offsetTop - feed.scrollTop) > 2) return;
+    openChat(index);
   };
 
   const closeChat = useCallback(() => setChatClosing(true), []);
@@ -139,6 +154,7 @@ export function App() {
             imageIndex={imageIndex[i]}
             near={Math.abs(i - active) <= 1}
             onBuy={() => openChat(i)}
+            onPhotoTap={() => tapPhoto(i)}
           />
         ))}
         <div className="feed__end">You're all caught up</div>

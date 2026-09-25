@@ -167,6 +167,8 @@ ul {
 
 .look__media {
   position: relative;
+  /* Tapping the photo opens the purchase chat. */
+  cursor: pointer;
   height: var(--hero-h);
   overflow: hidden;
   background: #e8e4df;
