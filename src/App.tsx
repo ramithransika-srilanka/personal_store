@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type UIEvent } from 'react';
 import { BottomDock } from './components/BottomDock';
-import { Chat } from './components/Chat';
+import { Chat, type Rect } from './components/Chat';
 import { Header } from './components/Header';
 import { LookCard } from './components/LookCard';
 import { Sheet } from './components/Sheet';
@@ -12,7 +12,7 @@ type BagItem = { lookId: string };
 const BAG_KEY = 'personal-store:bag';
 const INTRO_MS = 2300;
 // Matches the .chat.is-closing transition.
-const CHAT_CLOSE_MS = 220;
+const CHAT_CLOSE_MS = 180;
 // A photo tap this soon after the feed last moved is a tap to stop the scroll, not to buy.
 const SCROLL_SETTLE_MS = 250;
 
@@ -33,7 +33,7 @@ export function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [intro, setIntro] = useState<'pending' | 'playing' | 'done'>('pending');
   // The look being bought and the photo that was showing when Buy was tapped.
-  const [chat, setChat] = useState<{ look: number; image: number } | null>(null);
+  const [chat, setChat] = useState<{ look: number; image: number; from?: Rect } | null>(null);
   const [chatClosing, setChatClosing] = useState(false);
   const lastScrollAt = useRef(0);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
@@ -103,7 +103,10 @@ export function App() {
 
   const openChat = (index: number) => {
     setChatClosing(false);
-    setChat({ look: index, image: imageIndex[index] });
+    // Where the photo is now, so the chat can lift it from there into its thread.
+    const media = sectionRefs.current[index]?.querySelector('.look__media');
+    const r = media?.getBoundingClientRect();
+    setChat({ look: index, image: imageIndex[index], from: r && { x: r.x, y: r.y, width: r.width, height: r.height } });
   };
 
   // Only the look settled on screen opens from its photo, and only once the feed is still
@@ -193,6 +196,7 @@ export function App() {
           key={`${chat.look}-${chat.image}`}
           look={looks[chat.look]}
           imageIndex={chat.image}
+          from={chat.from}
           closing={chatClosing}
           onClose={closeChat}
         />

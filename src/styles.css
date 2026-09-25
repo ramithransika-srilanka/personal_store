@@ -480,27 +480,32 @@ ul {
   display: flex;
   flex-direction: column;
   background: #fff;
-  animation: chat-in 300ms var(--ease-out-strong) both;
+  /* Only the page fades; the photo flies in on its own (.chat-flight) and the rest staggers. */
+  animation: intro-fade 220ms var(--ease-out-strong) both;
 }
 
+/* Out faster than in, and without the stagger. */
 .chat.is-closing {
   opacity: 0;
-  translate: 0 24px;
+  translate: 0 12px;
   pointer-events: none;
   transition:
-    opacity 220ms ease-in,
-    translate 220ms ease-in;
+    opacity 180ms var(--ease-out-strong),
+    translate 180ms var(--ease-out-strong);
 }
 
-@keyframes chat-in {
-  from {
-    opacity: 0;
-    translate: 0 24px;
-  }
+/* The copy of the tapped photo that glides from the feed into the thread (see Chat.tsx). */
+.chat-flight {
+  position: fixed;
+  z-index: 26;
+  object-fit: cover;
+  background: center / cover no-repeat;
+  pointer-events: none;
 }
 
 .chat__top {
   padding: calc(29px + env(safe-area-inset-top, 0px)) 21px 0;
+  animation: intro-fade 240ms var(--ease-out-strong) 120ms both;
 }
 
 .chat__back {
@@ -632,23 +637,69 @@ ul {
 
 .swatch:active,
 .option:active {
-  transform: scale(0.94);
+  transform: scale(0.96);
 }
 
-/* Each message pops up from its own side, after its --d delay. */
+/* Each message pops out of its tail corner after its --d delay: it comes into focus fast
+   (ease-out) while it rises and grows on a soft spring, so it lands with a tiny settle. */
 .enter {
   transform-origin: 0 100%;
-  animation: msg-in 360ms var(--ease-out-strong) var(--d, 0ms) both;
+  animation:
+    msg-fade 200ms var(--ease-out-strong) var(--d, 0ms) both,
+    msg-pop 420ms var(--spring-soft) var(--d, 0ms) both;
 }
 
 .msgs--me .enter {
   transform-origin: 100% 100%;
 }
 
-@keyframes msg-in {
+@keyframes msg-fade {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.96);
+    filter: blur(2px);
+  }
+}
+
+@keyframes msg-pop {
+  from {
+    transform: translateY(6px) scale(0.95);
+  }
+}
+
+/* "…" while the store is replying. */
+.bubble--typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 31px;
+}
+
+.bubble--typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  animation: typing 1s ease-in-out infinite;
+}
+
+.bubble--typing span:nth-child(2) {
+  animation-delay: 150ms;
+}
+
+.bubble--typing span:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.4;
+    transform: none;
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
   }
 }
 
@@ -657,6 +708,15 @@ ul {
   left: 17px;
   right: 17px;
   bottom: calc(16px + var(--safe-bottom));
+  animation:
+    intro-fade 240ms var(--ease-out-strong) 160ms both,
+    dock-rise 360ms var(--ease-out-strong) 160ms both;
+}
+
+@keyframes dock-rise {
+  from {
+    transform: translateY(12px);
+  }
 }
 
 /* Sheets ----------------------------------------------------------------- */
@@ -891,16 +951,20 @@ ul {
     animation: intro-fade 300ms ease-out both;
   }
 
-  .chat {
-    animation: intro-fade 200ms ease-out both;
-  }
-
   .chat.is-closing {
     translate: none;
   }
 
+  .chat__dock {
+    animation: intro-fade 240ms ease-out 160ms both;
+  }
+
   .enter {
     animation: intro-fade 200ms ease-out var(--d, 0ms) both;
+  }
+
+  .bubble--typing span {
+    animation: intro-fade 1s ease-in-out infinite alternate;
   }
 
   .swatch:active,
