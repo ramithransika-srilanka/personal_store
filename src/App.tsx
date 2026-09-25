@@ -134,6 +134,9 @@ export function App() {
         <div className="feed__end">You're all caught up</div>
       </main>
 
+      {/* Dark, blurred fade behind the dock so it reads over any photo. */}
+      <div className="dock-scrim" aria-hidden="true" />
+
       <BottomDock
         look={looks[active]}
         imageIndex={imageIndex[active]}
