@@ -199,6 +199,8 @@ ul {
   padding: 4px 4px 4px 16px;
   border-radius: 50px;
   background: var(--glass-dark);
+  -webkit-backdrop-filter: blur(32px);
+  backdrop-filter: blur(32px);
   white-space: nowrap;
 }
 
