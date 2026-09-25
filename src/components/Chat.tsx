@@ -187,38 +187,43 @@ export function Chat({ look, imageIndex, from, closing, onClose }: Props) {
         )}
 
         {stage === 'questions' && (
-          <div className="msgs">
-            <p className="bubble bubble--bot enter" style={delay(QUESTION_STAGGER[0])}>
-              Pick your color
-            </p>
-            <div className="swatches enter" style={delay(QUESTION_STAGGER[1])} role="radiogroup" aria-label="Color">
-              {look.colors.map((c) => (
-                <button
-                  key={c.name}
-                  className={`swatch${color === c.name ? ' is-selected' : ''}`}
-                  style={{ '--c': c.hex } as CSSProperties}
-                  role="radio"
-                  aria-checked={color === c.name}
-                  aria-label={c.name}
-                  onClick={() => pickColor(c.name)}
-                />
-              ))}
+          // Each question sits tight on its choices; the two questions are spaced as blocks.
+          <div className="msgs-stack">
+            <div className="msgs msgs--ask">
+              <p className="bubble bubble--bot enter" style={delay(QUESTION_STAGGER[0])}>
+                Pick your color
+              </p>
+              <div className="swatches enter" style={delay(QUESTION_STAGGER[1])} role="radiogroup" aria-label="Color">
+                {look.colors.map((c) => (
+                  <button
+                    key={c.name}
+                    className={`swatch${color === c.name ? ' is-selected' : ''}`}
+                    style={{ '--c': c.hex } as CSSProperties}
+                    role="radio"
+                    aria-checked={color === c.name}
+                    aria-label={c.name}
+                    onClick={() => pickColor(c.name)}
+                  />
+                ))}
+              </div>
             </div>
-            <p className="bubble bubble--bot enter" style={delay(QUESTION_STAGGER[2])}>
-              Pick your size
-            </p>
-            <div className="options enter" style={delay(QUESTION_STAGGER[3])} role="radiogroup" aria-label="Size">
-              {look.sizes.map((s) => (
-                <button
-                  key={s}
-                  className={`option${size === s ? ' is-selected' : ''}`}
-                  role="radio"
-                  aria-checked={size === s}
-                  onClick={() => pickSize(s)}
-                >
-                  {s}
-                </button>
-              ))}
+            <div className="msgs msgs--ask">
+              <p className="bubble bubble--bot enter" style={delay(QUESTION_STAGGER[2])}>
+                Pick your size
+              </p>
+              <div className="options enter" style={delay(QUESTION_STAGGER[3])} role="radiogroup" aria-label="Size">
+                {look.sizes.map((s) => (
+                  <button
+                    key={s}
+                    className={`option${size === s ? ' is-selected' : ''}`}
+                    role="radio"
+                    aria-checked={size === s}
+                    onClick={() => pickSize(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -241,7 +246,7 @@ export function Chat({ look, imageIndex, from, closing, onClose }: Props) {
 
       <div className="chat__dock">
         <AskBar
-          placeholder="What are you looking for?"
+          placeholder="Ask me anything"
           onSubmit={(text) => say({ id: `me-${Date.now()}`, from: 'me', text })}
         />
       </div>
