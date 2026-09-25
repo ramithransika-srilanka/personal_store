@@ -3,9 +3,10 @@
 Mobile-only shopping web app built from the Figma design
 [Purchase trigger pitch](https://www.figma.com/design/vnehR1wsnaJeifKT7oXJZt/Purchase-trigger-pitch?node-id=339-1010).
 
-- Vertical, snap-scrolling feed of looks with a price / **Buy** pill on each photo
+- Vertical, snap-scrolling feed of looks with the store's logo and a price / **Buy** pill on each photo
 - Photo strip for the look in view, plus a "What are you looking for?" search bar
-- **Buy** adds straight to the bag (saved in `localStorage`); the bag icon shows the count and total
+- Tapping the photo (a clean tap, never a scroll) or the price / **Buy** pill opens a purchase chat: the
+  photo flies into the thread, then the store asks for a colour and a size and offers a fit check
 - Menu to jump between looks
 
 On screens wider than a phone the app stays in a centred 430px column.
