@@ -13,6 +13,11 @@
   /* Figma says 4.3px, which barely shows in a browser; stronger so the blur reads. */
   --chat-blur: 16px;
   --text: #000000;
+  /* Chat bubbles: the store's in blue, the shopper's in grey. */
+  --bubble-bot: rgba(21, 72, 235, 0.1);
+  --bubble-me: #e8e8e8;
+  --option-border: #e8edfd;
+  --accent: #1548eb;
   --muted: #6b6b6b;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --dock-bottom: 10px;
@@ -457,6 +462,201 @@ ul {
   opacity: 1;
 }
 
+/* Purchase chat ----------------------------------------------------------
+   Opens over the feed from the price pill. The product the shopper tapped comes in on the
+   right, then the store's questions on the left; picks come back as the shopper's bubbles. */
+
+.chat {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  width: var(--app-w);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  animation: chat-in 300ms var(--ease-out-strong) both;
+}
+
+.chat.is-closing {
+  opacity: 0;
+  translate: 0 24px;
+  pointer-events: none;
+  transition:
+    opacity 220ms ease-in,
+    translate 220ms ease-in;
+}
+
+@keyframes chat-in {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+
+.chat__top {
+  padding: calc(29px + env(safe-area-inset-top, 0px)) 21px 0;
+}
+
+.chat__back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 20px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.chat__back svg {
+  width: 16px;
+  height: 16px;
+}
+
+.chat__log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* Clears the chat box: 54px tall, 16px up, plus 16px of air. */
+  padding: 31px 22px calc(86px + var(--safe-bottom)) 18px;
+  scrollbar-width: none;
+}
+
+.chat__log::-webkit-scrollbar {
+  display: none;
+}
+
+.msgs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.msgs--me {
+  align-items: flex-end;
+}
+
+.msgs--product {
+  margin-bottom: 20px;
+}
+
+.chat__photo {
+  display: block;
+  width: 112px;
+  height: 148px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: center / cover no-repeat;
+}
+
+.bubble {
+  padding: 8px 16px;
+  border-radius: 200px;
+  color: #000;
+  font-size: 12px;
+}
+
+.bubble--bot {
+  background: var(--bubble-bot);
+}
+
+.bubble--me {
+  background: var(--bubble-me);
+}
+
+.swatches {
+  display: flex;
+  gap: 12px;
+  padding: 4px;
+  border-radius: 100px;
+  background: var(--bubble-bot);
+}
+
+.swatch {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--c);
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  transition:
+    outline-color 200ms ease,
+    transform 160ms var(--ease-out-strong);
+}
+
+/* A bigger tap target than the 24px dot. */
+.swatch::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.swatch.is-selected {
+  outline-color: var(--accent);
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option {
+  padding: 8px 16px;
+  border: 1px solid var(--option-border);
+  border-radius: 200px;
+  color: #000;
+  font-size: 12px;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    transform 160ms var(--ease-out-strong);
+}
+
+.option.is-selected {
+  border-color: var(--accent);
+  background: var(--bubble-bot);
+}
+
+.swatch:active,
+.option:active {
+  transform: scale(0.94);
+}
+
+/* Each message pops up from its own side, after its --d delay. */
+.enter {
+  transform-origin: 0 100%;
+  animation: msg-in 360ms var(--ease-out-strong) var(--d, 0ms) both;
+}
+
+.msgs--me .enter {
+  transform-origin: 100% 100%;
+}
+
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+}
+
+.chat__dock {
+  position: absolute;
+  left: 17px;
+  right: 17px;
+  bottom: calc(16px + var(--safe-bottom));
+}
+
 /* Sheets ----------------------------------------------------------------- */
 
 .sheet-layer {
@@ -582,11 +782,11 @@ ul {
 }
 
 /* Before the first photo has decoded, keep everything but the photos and header hidden. */
-.app[data-intro='pending'] :is(.ask, .buy-bar, .thumb) {
+.app[data-intro='pending'] :is(.dock .ask, .buy-bar, .thumb) {
   opacity: 0;
 }
 
-.app[data-intro='playing'] .ask {
+.app[data-intro='playing'] .dock .ask {
   /* The send button's circle pops up in the middle, slides to its place on the
      right (the `translate` property, so it composes with the rise's `transform`),
      then stretches left into the chat box. */
@@ -598,13 +798,13 @@ ul {
     intro-spread 620ms var(--spring-soft) 820ms both;
 }
 
-.app[data-intro='playing'] .ask__btn--plus {
+.app[data-intro='playing'] .dock .ask__btn--plus {
   animation:
     intro-fade 160ms ease-out 1100ms both,
     intro-pop 520ms var(--spring-bouncy) 1100ms both;
 }
 
-.app[data-intro='playing'] .ask__input {
+.app[data-intro='playing'] .dock .ask__input {
   animation: intro-text 360ms var(--ease-out-strong) 1220ms both;
 }
 
@@ -684,8 +884,26 @@ ul {
   }
 
   /* Keep the staged reveal, but as plain fades with no movement. */
-  .app[data-intro='playing'] :is(.ask, .ask__btn--plus, .ask__input, .buy-bar, .thumb) {
+  .app[data-intro='playing'] .dock :is(.ask, .ask__btn--plus, .ask__input),
+  .app[data-intro='playing'] :is(.buy-bar, .thumb) {
     animation: intro-fade 300ms ease-out both;
+  }
+
+  .chat {
+    animation: intro-fade 200ms ease-out both;
+  }
+
+  .chat.is-closing {
+    translate: none;
+  }
+
+  .enter {
+    animation: intro-fade 200ms ease-out var(--d, 0ms) both;
+  }
+
+  .swatch:active,
+  .option:active {
+    transform: none;
   }
 
   .row-entering > * {

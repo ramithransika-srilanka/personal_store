@@ -7,6 +7,7 @@ type Props = {
   imageIndex: number;
   /** On screen or next to it: load every photo now rather than waiting to scroll near. */
   near: boolean;
+  /** Tapping anywhere on the price pill (price or Buy) starts the purchase chat. */
   onBuy: () => void;
 };
 
@@ -64,9 +65,9 @@ export const LookCard = forwardRef<HTMLElement, Props>(function LookCard(
         {look.video && <HeroVideo src={look.video} active={shown === 0} />}
         <div className="buy-bar">
           <img className="buy-bar__logo" src={look.store.logo} alt={look.store.name} decoding="async" />
-          <div className="price-pill">
+          <div className="price-pill" onClick={onBuy}>
             <span className="price-pill__price">{formatPrice(look.price)}</span>
-            <button className="price-pill__buy" onClick={onBuy}>
+            <button className="price-pill__buy">
               Buy
             </button>
           </div>

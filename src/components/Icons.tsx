@@ -1,4 +1,4 @@
-// Coolicons (Menu_Duo_LG, Shopping_Bag_02, Add_Plus, Arrow_Up_MD) as used in the Figma file.
+// Coolicons (Menu_Duo_LG, Shopping_Bag_02, Add_Plus, Arrow_Up_MD, Chevron_Left) as used in the Figma file.
 type IconProps = { className?: string };
 
 const base = {
@@ -41,5 +41,11 @@ export const ArrowUpIcon = ({ className }: IconProps) => (
 export const CloseIcon = ({ className }: IconProps) => (
   <svg {...base} className={className}>
     <path d="M18 6L6 18M6 6L18 18" />
+  </svg>
+);
+
+export const ChevronLeftIcon = ({ className }: IconProps) => (
+  <svg {...base} className={className}>
+    <path d="M15 19L8 12L15 5" />
   </svg>
 );

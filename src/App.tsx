@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type UIEvent } from 'react';
 import { BottomDock } from './components/BottomDock';
+import { Chat } from './components/Chat';
 import { Header } from './components/Header';
 import { LookCard } from './components/LookCard';
 import { Sheet } from './components/Sheet';
@@ -10,6 +11,8 @@ type BagItem = { lookId: string };
 
 const BAG_KEY = 'personal-store:bag';
 const INTRO_MS = 2300;
+// Matches the .chat.is-closing transition.
+const CHAT_CLOSE_MS = 220;
 
 function loadBag(): BagItem[] {
   try {
@@ -22,10 +25,14 @@ function loadBag(): BagItem[] {
 export function App() {
   const [active, setActive] = useState(0);
   const [imageIndex, setImageIndex] = useState<number[]>(() => looks.map(() => 0));
-  const [bag, setBag] = useState<BagItem[]>(loadBag);
+  // Nothing adds to the bag yet: Buy now starts the purchase chat, which doesn't check out.
+  const [bag] = useState<BagItem[]>(loadBag);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [intro, setIntro] = useState<'pending' | 'playing' | 'done'>('pending');
+  // The look being bought and the photo that was showing when Buy was tapped.
+  const [chat, setChat] = useState<{ look: number; image: number } | null>(null);
+  const [chatClosing, setChatClosing] = useState(false);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
   // Start the intro once the first photo is ready (or after 1s at most), and drop the
@@ -60,14 +67,6 @@ export function App() {
     ]);
   }, [introStarted]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(BAG_KEY, JSON.stringify(bag));
-    } catch {
-      /* storage unavailable */
-    }
-  }, [bag]);
-
   // The look snapped to the top of the feed drives the dock's photo strip.
   const handleFeedScroll = (e: UIEvent<HTMLElement>) => {
     const top = e.currentTarget.scrollTop;
@@ -98,10 +97,21 @@ export function App() {
     scrollToLook(index);
   };
 
-  const addToBag = (index: number) => {
-    setBag((b) => [...b, { lookId: looks[index].id }]);
-    setToast('Added to bag');
+  const openChat = (index: number) => {
+    setChatClosing(false);
+    setChat({ look: index, image: imageIndex[index] });
   };
+
+  const closeChat = useCallback(() => setChatClosing(true), []);
+
+  useEffect(() => {
+    if (!chatClosing) return;
+    const t = setTimeout(() => {
+      setChat(null);
+      setChatClosing(false);
+    }, CHAT_CLOSE_MS);
+    return () => clearTimeout(t);
+  }, [chatClosing]);
 
   const showBag = () => {
     if (!bag.length) {
@@ -128,7 +138,7 @@ export function App() {
             look={look}
             imageIndex={imageIndex[i]}
             near={Math.abs(i - active) <= 1}
-            onBuy={() => addToBag(i)}
+            onBuy={() => openChat(i)}
           />
         ))}
         <div className="feed__end">You're all caught up</div>
@@ -161,6 +171,16 @@ export function App() {
           ))}
         </ul>
       </Sheet>
+
+      {chat && (
+        <Chat
+          key={`${chat.look}-${chat.image}`}
+          look={looks[chat.look]}
+          imageIndex={chat.image}
+          closing={chatClosing}
+          onClose={closeChat}
+        />
+      )}
 
       <div className={`toast${toast ? ' is-visible' : ''}`} role="status">
         {toast}

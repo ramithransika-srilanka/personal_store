@@ -5,10 +5,9 @@ import {
   useState,
   type AnimationEvent,
   type CSSProperties,
-  type FormEvent,
 } from 'react';
 import { suggestions, type Look } from '../data/looks';
-import { ArrowUpIcon, PlusIcon } from './Icons';
+import { AskBar } from './AskBar';
 
 type Props = {
   look: Look;
@@ -24,7 +23,6 @@ const LEAVE_MS = 140;
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props) {
-  const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const thumbsRef = useRef<HTMLDivElement>(null);
@@ -76,11 +74,8 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
     if (phase === 'entering' && e.target === e.currentTarget.lastElementChild) setPhase('idle');
   };
 
-  const submit = (e?: FormEvent) => {
-    e?.preventDefault();
-    if (!query.trim()) return;
-    onSearch(query.trim());
-    setQuery('');
+  const search = (query: string) => {
+    onSearch(query);
     setShowSuggestions(false);
   };
 
@@ -93,7 +88,7 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
               key={s}
               className="chip"
               style={{ '--i': i } as CSSProperties}
-              onClick={() => { onSearch(s); setShowSuggestions(false); }}
+              onClick={() => search(s)}
             >
               {s}
             </button>
@@ -129,30 +124,15 @@ export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props)
           })}
         </div>
       )}
-      <form className="ask" onSubmit={submit}>
-        <div className="ask__left">
-          <button
-            type="button"
-            className={`ask__btn ask__btn--plus${showSuggestions ? ' is-open' : ''}`}
-            aria-label={showSuggestions ? 'Hide suggestions' : 'Show suggestions'}
-            aria-expanded={showSuggestions}
-            onClick={() => setShowSuggestions((v) => !v)}
-          >
-            <PlusIcon />
-          </button>
-          <input
-            className="ask__input"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="What are you looking for?"
-            aria-label="What are you looking for?"
-            enterKeyHint="search"
-          />
-        </div>
-        <button type="submit" className="ask__btn ask__btn--send" aria-label="Search" disabled={!query.trim()}>
-          <ArrowUpIcon />
-        </button>
-      </form>
+      <AskBar
+        placeholder="What are you looking for?"
+        onSubmit={search}
+        onPlus={() => setShowSuggestions((v) => !v)}
+        plusOpen={showSuggestions}
+        plusLabel={showSuggestions ? 'Hide suggestions' : 'Show suggestions'}
+        sendLabel="Search"
+        enterKeyHint="search"
+      />
     </div>
   );
 }
