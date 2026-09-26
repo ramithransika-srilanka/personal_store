@@ -322,6 +322,13 @@ ul {
 
 .ps-footer__brand {
   gap: 15px;
+  align-items: center;
+  text-align: center;
+}
+
+.ps-footer__logo,
+.ps-footer__contact {
+  align-items: center;
 }
 
 .ps-footer__logo {
