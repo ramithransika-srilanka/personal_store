@@ -54,8 +54,6 @@ export const StoreFooter = forwardRef<HTMLElement>(function StoreFooter(_, ref) 
       </div>
 
       <div className="ps-footer">
-        <div className="ps-footer__rule" />
-
         <div className="ps-footer__brand">
           <div className="ps-footer__logo">
             <img src={polysocialLogo} alt="polysocial" width={131} height={24} loading="lazy" decoding="async" />
