@@ -49,7 +49,7 @@ export const StoreFooter = forwardRef<HTMLElement>(function StoreFooter(_, ref) 
           Create your own store
         </a>
         <a className="store-end__btn" href={`${SITE}brands.html`}>
-          Add your brand
+          Promote your brand
         </a>
       </div>
 
