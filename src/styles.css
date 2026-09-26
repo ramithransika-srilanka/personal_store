@@ -354,23 +354,6 @@ ul {
   color: #1548eb;
 }
 
-.ps-footer__nav {
-  display: flex;
-  flex-direction: column;
-}
-
-.ps-footer__nav a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 24px;
-  font-size: 12px;
-}
-
-.ps-footer__nav svg {
-  flex: none;
-}
-
 .ps-footer__legal,
 .ps-footer__meta {
   display: flex;

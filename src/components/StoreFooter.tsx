@@ -4,15 +4,6 @@ import polysocialLogo from '../assets/polysocial-logo.svg';
 // Mirrors the footer of the Polysocial mobile site (polysocial.cc), whose pages its links point to.
 const SITE = 'https://polysocial.cc/';
 
-const navLinks = [
-  ['creators.html', 'For content creators'],
-  ['brands.html', 'For brands'],
-  ['partner.html', 'Partner business'],
-  ['pricing.html', 'Pricing'],
-  ['linkedin-ugc-campaigns.html', 'LinkedIn UGC campaigns'],
-  ['about.html', 'Our Story'],
-];
-
 const legal: { title: string; paragraphs: string[] }[] = [
   {
     title: 'Content Review, Approval, and Disputes',
@@ -47,12 +38,6 @@ const legal: { title: string; paragraphs: string[] }[] = [
   },
 ];
 
-const Chevron = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <path d="M10 8l3 4-3 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
 // The end of the feed: the "Powered by Polysocial" block under the last look, then the
 // Polysocial site footer.
 export const StoreFooter = forwardRef<HTMLElement>(function StoreFooter(_, ref) {
@@ -84,15 +69,6 @@ export const StoreFooter = forwardRef<HTMLElement>(function StoreFooter(_, ref) 
             <span>Sri Lanka</span>
           </div>
         </div>
-
-        <nav className="ps-footer__nav">
-          {navLinks.map(([href, label]) => (
-            <a key={href} href={SITE + href}>
-              {label}
-              <Chevron />
-            </a>
-          ))}
-        </nav>
 
         <div className="ps-footer__rule" />
 
