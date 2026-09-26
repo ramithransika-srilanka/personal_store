@@ -46,10 +46,10 @@ export const StoreFooter = forwardRef<HTMLElement>(function StoreFooter(_, ref) 
       <div className="store-end__cta">
         <p className="store-end__powered">Powered by Polysocial</p>
         <a className="store-end__btn store-end__btn--primary" href={`${SITE}brand-access.html`}>
-          Create your store
+          Create your own store
         </a>
         <a className="store-end__btn" href={`${SITE}brands.html`}>
-          Add your brand
+          Promote your brand
         </a>
       </div>
 
