@@ -4,6 +4,7 @@ import { Chat, type Rect } from './components/Chat';
 import { Header } from './components/Header';
 import { LookCard } from './components/LookCard';
 import { Sheet } from './components/Sheet';
+import { StoreFooter } from './components/StoreFooter';
 import { formatPrice, looks, searchLooks } from './data/looks';
 import { preloadImages } from './lib/preload';
 
@@ -35,6 +36,9 @@ export function App() {
   // The look being bought and the photo that was showing when Buy was tapped.
   const [chat, setChat] = useState<{ look: number; image: number; from?: Rect } | null>(null);
   const [chatClosing, setChatClosing] = useState(false);
+  // The footer under the last look is on screen: the header turns dark and the dock steps aside.
+  const [atEnd, setAtEnd] = useState(false);
+  const endRef = useRef<HTMLElement>(null);
   const lastScrollAt = useRef(0);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
 
@@ -80,6 +84,8 @@ export function App() {
       if (el && best && Math.abs(el.offsetTop - top) < Math.abs(best.offsetTop - top)) nearest = i;
     });
     setActive(nearest);
+    const end = endRef.current;
+    setAtEnd(!!end && top > end.offsetTop - e.currentTarget.clientHeight / 2);
   };
 
   useEffect(() => {
@@ -143,7 +149,7 @@ export function App() {
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
-    <div className="app" data-intro={intro}>
+    <div className="app" data-intro={intro} data-at-end={atEnd || undefined}>
       <Header bagCount={bag.length} onMenu={() => setMenuOpen(true)} onBag={showBag} />
 
       <main className="feed" onScroll={handleFeedScroll}>
@@ -160,7 +166,7 @@ export function App() {
             onPhotoTap={() => tapPhoto(i)}
           />
         ))}
-        <div className="feed__end">You're all caught up</div>
+        <StoreFooter ref={endRef} />
       </main>
 
       {/* Dark, blurred fade behind the dock so it reads over any photo. */}

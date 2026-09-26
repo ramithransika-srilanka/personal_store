@@ -8,6 +8,8 @@ Mobile-only shopping web app built from the Figma design
 - Tapping the photo (a clean tap, never a scroll) or the price / **Buy** pill opens a purchase chat: the
   photo flies into the thread, then the store asks for a colour and a size and offers a fit check
 - Menu to jump between looks
+- After the last look, a "Powered by Polysocial" block (Create your store / Add your brand) and the
+  Polysocial site footer; while it's on screen the header turns dark on light grey and the dock hides
 
 On screens wider than a phone the app stays in a centred 430px column.
 
