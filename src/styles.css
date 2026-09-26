@@ -275,7 +275,7 @@ ul {
   flex-direction: column;
   align-items: center;
   gap: 13px;
-  padding: calc(89px + env(safe-area-inset-top, 0px)) 16px 48px;
+  padding: calc(89px + env(safe-area-inset-top, 0px)) 16px 24px;
 }
 
 .store-end__powered {
@@ -305,7 +305,7 @@ ul {
   display: flex;
   flex-direction: column;
   gap: 13px;
-  padding: 60px 17px calc(40px + env(safe-area-inset-bottom, 0px));
+  padding: 0 17px calc(40px + env(safe-area-inset-bottom, 0px));
 }
 
 .ps-footer__rule {
