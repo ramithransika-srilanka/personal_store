@@ -19,7 +19,7 @@ type Props = {
 type Row = { look: Look; mode: 'thumbs' | 'chips' };
 
 // The outgoing row fades out this fast before the next one staggers in (see .row-leaving).
-const LEAVE_MS = 140;
+const LEAVE_MS = 180;
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function BottomDock({ look, imageIndex, onSelectImage, onSearch }: Props) {

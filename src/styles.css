@@ -187,7 +187,7 @@ ul {
   /* The photo's blurred placeholder, cropped like the photo, until the photo paints over it. */
   background: center / cover no-repeat;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .look__img.is-active {
@@ -343,13 +343,13 @@ ul {
   outline: 2px solid transparent;
   outline-offset: -2px;
   transition:
-    outline-color 200ms ease,
-    transform 160ms var(--ease-out-strong);
+    outline-color 260ms ease,
+    transform 200ms var(--ease-out-soft);
 }
 
 .thumb:active,
 .chip:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 .thumb.is-active {
@@ -382,26 +382,27 @@ ul {
 }
 
 /* Row changes (a new look scrolled in, or + swapping photos and suggestions) ---------------
-   The old row slips out to the left fast, the new one follows in from the right, one item
-   at a time, like the intro. Short and small on purpose: this happens on every scroll. */
+   The old row dissolves out with barely any drift, the new one glides in from the right, one
+   item at a time, like the intro. Small distances and soft easing on purpose: this happens on
+   every scroll, so it should read as a gentle settle, not a slide. */
 
 .row-leaving {
   opacity: 0;
-  transform: translateX(-8px);
+  transform: translateX(-4px);
   pointer-events: none;
   transition:
-    opacity 140ms var(--ease-out-strong),
-    transform 140ms var(--ease-out-strong);
+    opacity 180ms cubic-bezier(0.4, 0, 0.6, 1),
+    transform 180ms cubic-bezier(0.4, 0, 0.6, 1);
 }
 
 .row-entering > * {
-  animation: row-enter 280ms var(--ease-out-strong) calc(var(--i, 0) * 30ms) both;
+  animation: row-enter 420ms var(--ease-out-soft) calc(var(--i, 0) * 40ms) both;
 }
 
 @keyframes row-enter {
   from {
     opacity: 0;
-    transform: translateX(12px);
+    transform: translateX(6px);
   }
 }
 
@@ -623,8 +624,8 @@ ul {
   outline: 2px solid transparent;
   outline-offset: 1px;
   transition:
-    outline-color 200ms ease,
-    transform 160ms var(--ease-out-strong);
+    outline-color 260ms ease,
+    transform 200ms var(--ease-out-soft);
 }
 
 /* A bigger tap target than the 24px dot. */
@@ -861,6 +862,8 @@ ul {
   --spring-soft: cubic-bezier(0.34, 1.3, 0.64, 1);
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  /* Gentler than --ease-out-strong: no sudden start, a long quiet landing. */
+  --ease-out-soft: cubic-bezier(0.25, 0.8, 0.35, 1);
 }
 
 @supports (animation-timing-function: linear(0, 1)) {
@@ -905,10 +908,10 @@ ul {
 }
 
 .app[data-intro='playing'] .thumb {
-  --delay: calc(1400ms + var(--i, 0) * 70ms);
+  --delay: calc(1400ms + var(--i, 0) * 60ms);
   animation:
-    intro-fade 320ms ease-out var(--delay) both,
-    intro-slide 520ms var(--ease-out-strong) var(--delay) both;
+    intro-fade 420ms ease-out var(--delay) both,
+    intro-slide 640ms var(--ease-out-soft) var(--delay) both;
 }
 
 @keyframes intro-fade {
@@ -961,7 +964,7 @@ ul {
 
 @keyframes intro-slide {
   from {
-    transform: translateX(32px);
+    transform: translateX(14px);
   }
 }
 
@@ -1000,7 +1003,7 @@ ul {
   }
 
   .row-entering > * {
-    animation: intro-fade 200ms ease-out both;
+    animation: intro-fade 240ms ease-out both;
   }
 
   .thumb:active,
