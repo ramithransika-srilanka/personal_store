@@ -330,6 +330,13 @@ ul {
   --edge-fade: 47px;
 }
 
+/* Scroll snapping measures the photos where they're drawn, so while they slide in it keeps
+   re-snapping the strip under them and the whole row jitters. Snap only once they've landed. */
+.app[data-intro='playing'] .thumbs,
+.thumbs.row-entering {
+  scroll-snap-type: none;
+}
+
 .thumbs::-webkit-scrollbar {
   display: none;
 }
